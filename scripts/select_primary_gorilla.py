@@ -1,6 +1,6 @@
 import os
 import tkinter
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk  
 
 def read_labels(file_path):
     labels = []
@@ -21,50 +21,50 @@ def in_bbox(x,y, bbox):
     return False
 
 label_id = "" # descripes which label should be read. Currently there must be only one label of this type
-images_folder = ""
-lables_folder = ""
+images_folder = "/home/rohan/Documents/Uni/Sem3/AI/gorilla-reidentification/scripts/images"
+lables_folder = "/home/rohan/Documents/Uni/Sem3/AI/gorilla-reidentification/scripts/labels"
 output_folder = os.path.join(lables_folder, "primary")
 
 if not os.path.exists(output_folder):
     os.mkdir(output_folder)
 
-window = tkinter.Tk(className="bla")    
 
 for file in os.listdir(images_folder):
+    window = tkinter.Tk(className="bla")    
     file_name, file_extension = os.path.splitext(file)
     label_path = os.path.join(lables_folder, file_name + ".txt")
     if file_extension != ".png" or not os.path.exists(label_path):
         continue
 
+    image = Image.open(os.path.join(images_folder, file))
     bboxes_yolo = read_labels(label_path)
-    bboxes = [yolobbox2bbox(bbox) for bbox in bboxes_yolo]
+    bboxes = [yolobbox2bbox(*bbox, image.width, image.height) for bbox in bboxes_yolo]
     if len(bboxes) == 0:
         continue
 
     image = Image.open(os.path.join(images_folder, file))
     canvas = tkinter.Canvas(window, width=image.size[0], height=image.size[1])
-    for bbox in bboxes:
-        canvas.create_rectangle(*bbox, outline="#fb0")
     canvas.pack()
     image_tk = ImageTk.PhotoImage(image)
     canvas.create_image(image.size[0]//2, image.size[1]//2, image=image_tk)
+    for bbox in bboxes:
+        canvas.create_rectangle(*bbox, outline="#05f", width=1)
 
     def callback(event):
         for bbox in bboxes:
             if in_bbox(event.x, event.y, bbox):
                 new_label_path = os.path.join(output_folder, file_name + ".txt")
                 with open(new_label_path, 'w') as nf:
-                    bbox_yolo = bboxes_yolo[bboxes_yolo.index(bbox)]
+                    bbox_yolo = bboxes_yolo[bboxes.index(bbox)]
                     nf.write("0 " + " ".join([str(val) for val in bbox_yolo]))
-                    canvas.delete()
+                    window.destroy()
                 return
         print("Unexpected behaviour: Clicked and not in bounding box")
 
     def skip():
-        canvas.delete()
-        continue
+        window.destroy()
 
     canvas.bind("<Button-1>", callback)
-    canvas.bind("", skip)
+    canvas.bind('<Return>', skip)
     tkinter.mainloop()
     
