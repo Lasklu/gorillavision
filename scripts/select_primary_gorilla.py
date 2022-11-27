@@ -16,7 +16,9 @@ def yolobbox2bbox(x,y,w,h, img_w, img_h):
     return x1*img_w, y1*img_h, x2*img_w, y2*img_h
 
 def in_bbox(x,y, bbox):
-    pass
+    if bbox[0] <= x <= bbox[2] and bbox[1] <= y <= bbox[3]:
+        return True
+    return False
 
 label_id = "" # descripes which label should be read. Currently there must be only one label of this type
 images_folder = ""
@@ -54,7 +56,15 @@ for file in os.listdir(images_folder):
                 with open(new_label_path, 'w') as nf:
                     bbox_yolo = bboxes_yolo[bboxes_yolo.index(bbox)]
                     nf.write("0 " + " ".join([str(val) for val in bbox_yolo]))
+                    canvas.delete()
                 return
+        print("Unexpected behaviour: Clicked and not in bounding box")
+
+    def skip():
+        canvas.delete()
+        continue
 
     canvas.bind("<Button-1>", callback)
+    canvas.bind("", skip)
+    tkinter.mainloop()
     
