@@ -1,5 +1,5 @@
 import os
-import tkinter
+import tkinter as tk
 from PIL import Image, ImageTk  
 
 def read_labels(file_path):
@@ -20,22 +20,23 @@ def in_bbox(x,y, bbox):
         return True
     return False
 
-label_id = "" # descripes which label should be read. Currently there must be only one label of this type
-images_folder = "/home/rohan/Documents/Uni/Sem3/AI/gorilla-reidentification/scripts/images"
-lables_folder = "/home/rohan/Documents/Uni/Sem3/AI/gorilla-reidentification/scripts/labels"
+images_folder = "/home/rohan/Documents/Uni/Sem3/AI/Data/Individual_ID-20221108T122531Z-001/Faces_Dante/images"
+lables_folder = "/home/rohan/Documents/Uni/Sem3/AI/Data/Individual_ID-20221108T122531Z-001/Faces_Dante/labels"
 output_folder = os.path.join(lables_folder, "primary")
+faults_file_path = os.path.join(output_folder, "faults.txt")
 
+
+faults_file = open(faults_file_path, "w")
 if not os.path.exists(output_folder):
     os.mkdir(output_folder)
 
-
-for file in os.listdir(images_folder):
-    window = tkinter.Tk(className="bla")    
+for file in sorted(os.listdir(images_folder)):
     file_name, file_extension = os.path.splitext(file)
     label_path = os.path.join(lables_folder, file_name + ".txt")
     if file_extension != ".png" or not os.path.exists(label_path):
         continue
 
+    window = tk.Tk(className=file)
     image = Image.open(os.path.join(images_folder, file))
     bboxes_yolo = read_labels(label_path)
     bboxes = [yolobbox2bbox(*bbox, image.width, image.height) for bbox in bboxes_yolo]
@@ -43,9 +44,9 @@ for file in os.listdir(images_folder):
         continue
 
     image = Image.open(os.path.join(images_folder, file))
-    canvas = tkinter.Canvas(window, width=image.size[0], height=image.size[1])
+    canvas = tk.Canvas(window, width=image.size[0], height=image.size[1])
     canvas.pack()
-    image_tk = ImageTk.PhotoImage(image)
+    image_tk = ImageTk.PhotoImage(image, master=canvas)
     canvas.create_image(image.size[0]//2, image.size[1]//2, image=image_tk)
     for bbox in bboxes:
         canvas.create_rectangle(*bbox, outline="#05f", width=1)
@@ -57,14 +58,13 @@ for file in os.listdir(images_folder):
                 with open(new_label_path, 'w') as nf:
                     bbox_yolo = bboxes_yolo[bboxes.index(bbox)]
                     nf.write("0 " + " ".join([str(val) for val in bbox_yolo]))
-                    window.destroy()
+                window.destroy()
                 return
+        with open(faults_file_path, "a") as ff:
+                ff.write(file + " \n")
         print("Unexpected behaviour: Clicked and not in bounding box")
-
-    def skip():
         window.destroy()
 
     canvas.bind("<Button-1>", callback)
-    canvas.bind('<Return>', skip)
-    tkinter.mainloop()
+    window.mainloop()
     
