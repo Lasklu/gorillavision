@@ -14,9 +14,9 @@ def yolobbox2bbox(x,y,w,h, img_w, img_h):
     x2, y2 = x+w/2, y+h/2
     return x1*img_w, y1*img_h, x2*img_w, y2*img_h
 
-label_id = "" # descripes which label should be read. Currently there must be only one label of this type
-images_folder = ""
-lables_folder = ""
+label_id = "0" # descripes which label should be read. Currently there must be only one label of this type
+images_folder = "/home/rohan/Documents/Uni/Sem3/AI/Data/Individual_ID-20221108T122531Z-001/Faces_Dante/images"
+lables_folder = "/home/rohan/Documents/Uni/Sem3/AI/Data/Individual_ID-20221108T122531Z-001/Faces_Dante/labels_primary_faces"
 output_folder = os.path.join(images_folder, "cropped")
 
 if not os.path.exists(output_folder):
@@ -33,6 +33,5 @@ for file in os.listdir(images_folder):
     img = Image.open(os.path.join(images_folder, file))
     bbox = yolobbox2bbox(*bbox, img.width, img.height)
     cropped_image = img.crop(tuple(bbox))
-    cropped_image.show()
     new_path = os.path.join(output_folder, file_name + ".png")
     cropped_image.save(new_path)
