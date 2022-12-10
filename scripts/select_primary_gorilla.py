@@ -20,8 +20,8 @@ def in_bbox(x,y, bbox):
         return True
     return False
 
-images_folder = "/home/rohan/Documents/Uni/Sem3/AI/Data/Individual_ID-20221108T122531Z-001/Faces_Dante/images"
-lables_folder = "/home/rohan/Documents/Uni/Sem3/AI/Data/Individual_ID-20221108T122531Z-001/Faces_Dante/labels"
+images_folder = "./img"
+lables_folder = "./lab"
 output_folder = os.path.join(lables_folder, "primary")
 faults_file_path = os.path.join(output_folder, "faults.txt")
 
@@ -33,7 +33,7 @@ faults_file = open(faults_file_path, "w")
 for file in sorted(os.listdir(images_folder)):
     file_name, file_extension = os.path.splitext(file)
     label_path = os.path.join(lables_folder, file_name + ".txt")
-    if file_extension != ".png" or not os.path.exists(label_path):
+    if file_extension != ".jpeg" or not os.path.exists(label_path):
         continue
 
     window = tk.Tk(className=file)
