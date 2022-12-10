@@ -1,0 +1,1 @@
+for f in ../cropped/*; do python preproc_db.py -i $f -c configs/manta.json -d no; done
