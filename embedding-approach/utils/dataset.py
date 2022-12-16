@@ -10,7 +10,7 @@ class IndividualsDS(Dataset):
         self.transformations = Compose([
             ToPILImage(),
             Resize(img_size),
-            ToTensor(), # [0, 1]
+            ToTensor(),
         ])
     
     def __getitem__(self, key):
