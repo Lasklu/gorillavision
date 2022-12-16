@@ -1,5 +1,5 @@
 import pytorch_lightning as pl
-from pytorch_lightning.metrics import Accuracy
+from torchmetrics import Accuracy
 from torch import Tensor
 from utils.dataset import IndividualsDS
 from sklearn.model_selection import train_test_split#
