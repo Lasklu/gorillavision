@@ -1,4 +1,4 @@
-from embedding-approach.utils.losses import triplet_semihard_loss
+from utils.losses import triplet_semihard_loss
 import pytorch_lightning as pl
 from torchmetrics import Accuracy
 from torch import Tensor
@@ -6,6 +6,7 @@ from utils.dataset import IndividualsDS
 from sklearn.model_selection import train_test_split#
 from torch.optim import Adam
 from torch.utils.data import DataLoader
+from torch.nn import Linear, Sequential, AdaptiveAvgPool2d
 import torch
 
 class TripletLoss(pl.LightningModule):
@@ -17,7 +18,19 @@ class TripletLoss(pl.LightningModule):
         
         self.trainAcc = Accuracy()
         self.valAcc = Accuracy()
+
+        #backend
+        # ToDo use pretrained weights
+        self.backend = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True)
+
+        # ToDo add layer between backend and frontend like in mata-ray code
         
+        # "frontend"
+        self.frontend  = Sequential(
+            AdaptiveAvgPool2d((0,0)), # no idea what size
+            Linear(0,0) #in = last_cnn out channels | out = embedding size
+        )
+
         # TODO define network archticture
     
     def forward(self, x: Tensor):
@@ -41,7 +54,7 @@ class TripletLoss(pl.LightningModule):
         return DataLoader(self.validateDF, batch_size=self.batch_size, num_workers=4)
 
     def training_step(self, batch: dict, _batch_idx: int):
-        inputs, labels = batch['image'], batch['label']
+        inputs, labels = batch['image'], batch['labels']
         labels = labels.flatten()
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(outputs, labels)
@@ -54,7 +67,7 @@ class TripletLoss(pl.LightningModule):
         self.trainAcc.reset()
 
     def validation_step(self, batch: dict, _batch_idx: int):
-        inputs, labels = batch['image'], batch['label']
+        inputs, labels = batch['image'], batch['labels']
         labels = labels.flatten()
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(outputs, labels)
