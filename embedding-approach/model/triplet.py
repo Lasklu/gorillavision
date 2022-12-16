@@ -1,3 +1,4 @@
+from embedding-approach.utils.losses import triplet_semihard_loss
 import pytorch_lightning as pl
 from torchmetrics import Accuracy
 from torch import Tensor
@@ -28,6 +29,7 @@ class TripletLoss(pl.LightningModule):
         train, validate = train_test_split(df, test_size=0.3, random_state=0, stratify=df['label'])
         self.trainDF = IndividualsDS(train)
         self.validateDF = IndividualsDS(validate)
+        # TODO: might need to do some cross validation?
 
     def configure_optimizers(self):
         return Adam(self.parameters(), lr=self.lr)
@@ -38,15 +40,28 @@ class TripletLoss(pl.LightningModule):
     def val_dataloader(self):
         return DataLoader(self.validateDF, batch_size=self.batch_size, num_workers=4)
 
-    def training_step(self):
-        pass
+    def training_step(self, batch: dict, _batch_idx: int):
+        inputs, labels = batch['image'], batch['label']
+        labels = labels.flatten()
+        outputs = self.forward(inputs)
+        loss = triplet_semihard_loss(outputs, labels)
+        self.trainAcc(outputs.argmax(dim=1), labels)
+        self.log('train_loss', loss, on_step=False, on_epoch=True, prog_bar=False)
+        return loss
 
     def training_epoch_end(self):
         self.log('train_acc', self.trainAcc.compute() * 100, prog_bar=True)
         self.trainAcc.reset()
 
-    def validation_step(self):
-        pass
+    def validation_step(self, batch: dict, _batch_idx: int):
+        inputs, labels = batch['image'], batch['label']
+        labels = labels.flatten()
+        outputs = self.forward(inputs)
+        loss = triplet_semihard_loss(outputs, labels)
+        
+        self.valAcc(outputs.argmax(dim=1), labels)
+        
+        return {'val_loss': loss}
     
     def validation_epoch_end(self, validationStepOutputs):
         avgLoss = torch.stack([x['val_loss'] for x in validationStepOutputs]).mean()
