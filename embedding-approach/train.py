@@ -1,14 +1,13 @@
 import argparse
 import json
 import os
-from torch import optim, nn, utils, Tensor
-from torchvision.datasets import MNIST
-from torchvision.transforms import ToTensor
 import pytorch_lightning as pl
 import pandas as pd
 import cv2
 import torch
 from model.triplet import TripletLoss
+from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import TensorBoardLogger
 
 ###############################
 #  Setup Argparse
@@ -47,10 +46,11 @@ if __name__ == '__main__':
     with open(config_path) as config_buffer:    
         config = json.loads(config_buffer.read())
 
-    df = load_data(config["data_path"])
+    img_size = (config['model']['input_width'], config['model']['input_height'])
+    df = load_data(config["data_path"], img_size)
 
     model = TripletLoss(df)
-    logger = TensorBoardLogger("covid-mask-detector/tensorboard", name="mask-detector")
+    logger = TensorBoardLogger("./tensorboard", name="reID-model")
     checkpointCallback = ModelCheckpoint(
         filename='{epoch}-{val_loss:.2f}-{val_acc:.2f}',
         verbose=True,

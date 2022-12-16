@@ -4,12 +4,12 @@ from torchvision.transforms import Compose, Resize, ToPILImage, ToTensor
 
 class IndividualsDS(Dataset):
 
-    def __init__(self, dataFrame):
+    def __init__(self, dataFrame, img_size):
         self.dataFrame = dataFrame
         
         self.transformations = Compose([
             ToPILImage(),
-            Resize((100, 100)),
+            Resize(img_size),
             ToTensor(), # [0, 1]
         ])
     

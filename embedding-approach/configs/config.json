@@ -2,5 +2,10 @@
     "data": {
         "path": "./data/",
         "split_seed": 123
+    },
+
+    "model": {
+        "input_width": 300,
+        "input_height": 300
     }
 }
