@@ -6,7 +6,8 @@
 
     "model": {
         "input_width": 300,
-        "input_height": 300
+        "input_height": 300,
+        "embedding_size": 256
     },
 
     "train":{

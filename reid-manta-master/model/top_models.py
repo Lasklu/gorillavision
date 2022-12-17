@@ -68,7 +68,7 @@ def glob_softmax(embedding_size, backend_model = None, features_shape = None):
     
 
     if backend_model is not None:
-        return Model(backend_model.input, output_layer, name='top_model')  
+        return Model(backend_model.input, output_layer, name='top_model')
     else:
         return Model(input_layer, output_layer, name='top_model')
     

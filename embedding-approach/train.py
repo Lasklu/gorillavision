@@ -58,7 +58,9 @@ if __name__ == '__main__':
     img_size = (config['model']['input_width'], config['model']['input_height'])
     df = load_data(config["data_path"], img_size)
 
-    model = TripletLoss(df, lr=config["train"]["learning_rate"])
+    model = TripletLoss(df=df,
+        embedding_size=config["model"]["embedding_size"],
+        lr=config["train"]["learning_rate"])
     logger = TensorBoardLogger("./tensorboard", name="reID-model")
     checkpointCallback = ModelCheckpoint(
         filename='{epoch}-{val_loss:.2f}-{val_acc:.2f}',
@@ -67,7 +69,7 @@ if __name__ == '__main__':
         mode='max'
     )
     trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,
-                         max_epochs=config["train"]["nb_epochs"],
-                         logger=logger,
-                         checkpoint_callback=checkpointCallback)
+        max_epochs=config["train"]["nb_epochs"],
+        logger=logger,
+        checkpoint_callback=checkpointCallback)
     trainer.fit(model)

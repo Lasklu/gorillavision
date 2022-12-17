@@ -8,9 +8,10 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torch.nn import Linear, Sequential, AdaptiveAvgPool2d
 import torch
+from torchvision.models import inception_v3, Inception_V3_Weights
 
 class TripletLoss(pl.LightningModule):
-    def __init__(self, df, batch_size=32, lr=0.00001):
+    def __init__(self, df, embedding_size, batch_size=32, lr=0.00001, ):
         super(TripletLoss, self).__init__()
         self.df = df
         self.batch_size = batch_size
@@ -21,21 +22,18 @@ class TripletLoss(pl.LightningModule):
 
         #backend
         # ToDo use pretrained weights
-        self.backend = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True)
-
-        # ToDo add layer between backend and frontend like in mata-ray code
+        self.backend = inception_v3(weights=Inception_V3_Weights.IMAGENET1K_V1)
         
         # "frontend"
         self.frontend  = Sequential(
-            AdaptiveAvgPool2d((0,0)), # no idea what size
-            Linear(0,0) #in = last_cnn out channels | out = embedding size
+            AdaptiveAvgPool2d((1,1)), # not sure if this is exactly the size we need
+            Linear(self.backend.out_channels, embedding_size) #in = size of out of backend| out = embedding size
         )
-
-        # TODO define network archticture
     
     def forward(self, x: Tensor):
-        # ToDo forward pass over layers and return output
-        pass
+        x = self.backend(x)
+        x = self.frontend(x)
+        return x
 
     def prepare_data(self):
         df = self.df
@@ -45,9 +43,10 @@ class TripletLoss(pl.LightningModule):
         # TODO: might need to do some cross validation?
 
     def configure_optimizers(self):
-        return Adam(self.parameters(), lr=self.lr)
+        return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=0.0)
 
     def train_dataloader(self):
+        # ToDo: Implement data augmentation as in the paper
         return DataLoader(self.trainDF, batch_size=self.batch_size, shuffle=True, num_workers=4)
 
     def val_dataloader(self):
