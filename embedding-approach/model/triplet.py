@@ -8,38 +8,42 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torch.nn import Linear, Sequential, AdaptiveAvgPool2d
 import torch
+import pandas as pd
 from torchvision.models import inception_v3, Inception_V3_Weights
+from typing import Tuple
 
 class TripletLoss(pl.LightningModule):
-    def __init__(self, df, embedding_size, batch_size=32, lr=0.00001, ):
+    def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, ):
         super(TripletLoss, self).__init__()
         self.df = df
         self.batch_size = batch_size
         self.lr = lr
-        
-        self.trainAcc = Accuracy()
-        self.valAcc = Accuracy()
+        self.img_size = img_size
+        num_classes=self.df["labels_numeric"].nunique()
+        self.valAcc = Accuracy("multiclass", num_classes=num_classes)
+        self.trainAcc = Accuracy("multiclass", num_classes=num_classes)
 
         #backend
         # ToDo use pretrained weights
         self.backend = inception_v3(weights=Inception_V3_Weights.IMAGENET1K_V1)
-        
+        self.backend.eval()
         # "frontend"
+        print(self.backend.fc.out_features)
         self.frontend  = Sequential(
-            AdaptiveAvgPool2d((1,1)), # not sure if this is exactly the size we need
-            Linear(self.backend.out_channels, embedding_size) #in = size of out of backend| out = embedding size
+            AdaptiveAvgPool2d((5,5)), # not sure if this is exactly the size we need
+            Linear(self.backend.fc.out_features, embedding_size) #in = size of out of backend| out = embedding size
         )
     
     def forward(self, x: Tensor):
         x = self.backend(x)
+        #x = x.view(self.batch_size, 1000, 1, 1)
         x = self.frontend(x)
         return x
 
     def prepare_data(self):
-        df = self.df
-        train, validate = train_test_split(df, test_size=0.3, random_state=0, stratify=df['label'])
-        self.trainDF = IndividualsDS(train)
-        self.validateDF = IndividualsDS(validate)
+        train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
+        self.trainDF = IndividualsDS(train, self.img_size)
+        self.validateDF = IndividualsDS(validate, self.img_size)
         # TODO: might need to do some cross validation?
 
     def configure_optimizers(self):
@@ -53,7 +57,7 @@ class TripletLoss(pl.LightningModule):
         return DataLoader(self.validateDF, batch_size=self.batch_size, num_workers=4)
 
     def training_step(self, batch: dict, _batch_idx: int):
-        inputs, labels = batch['image'], batch['labels']
+        inputs, labels = batch['images'], batch['labels']
         labels = labels.flatten()
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(outputs, labels)
@@ -66,7 +70,7 @@ class TripletLoss(pl.LightningModule):
         self.trainAcc.reset()
 
     def validation_step(self, batch: dict, _batch_idx: int):
-        inputs, labels = batch['image'], batch['labels']
+        inputs, labels = batch['images'], batch['labels']
         labels = labels.flatten()
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(outputs, labels)
