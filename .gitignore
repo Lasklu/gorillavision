@@ -5,6 +5,7 @@ __pycache__/
 embedding-approach/tensorboard/
 reid-manta-master/data
 reid-manta-master/examples
+embedding-approach/configs
 # C extensions
 *.so
 embedding-approach/tensorboard/

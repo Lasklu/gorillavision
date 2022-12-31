@@ -1,6 +1,6 @@
 {
     "data": {
-        "path": "./data/",
+        "path": "/data/cropped",
         "split_seed": 123
     },
 
