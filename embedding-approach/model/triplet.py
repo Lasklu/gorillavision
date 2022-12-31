@@ -9,8 +9,11 @@ from torch.utils.data import DataLoader
 from torch.nn import Linear, Sequential, AdaptiveAvgPool2d
 import torch
 import pandas as pd
-from torchvision.models import inception_v3, Inception_V3_Weights
+from torchvision.models import Inception_V3_Weights
+from torchvision import transforms
 from typing import Tuple
+import numpy as np
+from .inception import inception_modified as test
 
 class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, ):
@@ -25,19 +28,38 @@ class TripletLoss(pl.LightningModule):
 
         #backend
         # ToDo use pretrained weights
-        self.backend = inception_v3(weights=Inception_V3_Weights.IMAGENET1K_V1)
+        self.backend = test(weights=Inception_V3_Weights.IMAGENET1K_V1)
         self.backend.eval()
         # "frontend"
-        print(self.backend.fc.out_features)
-        self.frontend  = Sequential(
-            AdaptiveAvgPool2d((5,5)), # not sure if this is exactly the size we need
-            Linear(self.backend.fc.out_features, embedding_size) #in = size of out of backend| out = embedding size
-        )
+        #print(self.backend.fc.out_features)
+        self.pooling = AdaptiveAvgPool2d((5,5))
+        self.linear = Linear(2048*5*5, embedding_size)
+        #self.frontend  = Sequential(
+        #    AdaptiveAvgPool2d((5,5)) # not sure if this is exactly the size we need
+        #    #Linear(self.backend.fc.out_features, embedding_size) #in = size of out of backend| out = embedding size
+        #)
     
     def forward(self, x: Tensor):
+        preprocess =    transforms.Compose([
+                        transforms.Resize(299),
+                        transforms.CenterCrop(299),
+                        transforms.ToTensor(),
+                        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                    ])
+        #x = preprocess(x)
+        #x = x.unsqueeze(0)
         x = self.backend(x)
+        print("shape", x.shape) #batchsize, 1000
         #x = x.view(self.batch_size, 1000, 1, 1)
-        x = self.frontend(x)
+        #x = x.unsqueeze(2)
+
+        x = self.pooling(x)
+        print("shape0",x.shape)
+        x = x.flatten(start_dim=1)
+        print("shape1",x.shape)
+        x = self.linear(x)
+        print("shape2",x.shape)
+        print("DGHJWGDHJWG")
         return x
 
     def prepare_data(self):
@@ -71,9 +93,13 @@ class TripletLoss(pl.LightningModule):
 
     def validation_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
+        print("labels",np.shape(labels))
         labels = labels.flatten()
+        print("labels",np.shape(labels))
+        print("inputs",np.shape(inputs))
         outputs = self.forward(inputs)
-        loss = triplet_semihard_loss(outputs, labels)
+        print("output", outputs.shape)
+        loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
         
         self.valAcc(outputs.argmax(dim=1), labels)
         
