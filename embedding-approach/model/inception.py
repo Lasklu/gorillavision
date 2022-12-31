@@ -142,7 +142,6 @@ class Inception3(nn.Module):
         x = self.Mixed_7b(x)
         # N x 2048 x 8 x 8
         x = self.Mixed_7c(x)
-        print("shapee", x.shape)
         # N x 2048 x 8 x 8
         # Adaptive average pooling
         #x = self.avgpool(x)

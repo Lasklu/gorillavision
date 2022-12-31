@@ -14,6 +14,7 @@ from torchvision import transforms
 from typing import Tuple
 import numpy as np
 from .inception import inception_modified as test
+from .inception import InceptionOutputs
 
 class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, ):
@@ -49,16 +50,18 @@ class TripletLoss(pl.LightningModule):
         #x = preprocess(x)
         #x = x.unsqueeze(0)
         x = self.backend(x)
+        if isinstance(x, InceptionOutputs):
+            x = x.logits
         #x = x.view(self.batch_size, 1000, 1, 1)
         #x = x.unsqueeze(2)
 
         x = self.pooling(x)
-        print("shape0",x.shape)
+        #print("shape0",x.shape)
         x = x.flatten(start_dim=1)
-        print("shape1",x.shape)
+        #print("shape1",x.shape)
         x = self.linear(x)
-        print("shape2",x.shape)
-        print("DGHJWGDHJWG")
+        #print("shape2",x.shape)
+        #print("DGHJWGDHJWG")
         return x
 
     def prepare_data(self):
@@ -81,7 +84,7 @@ class TripletLoss(pl.LightningModule):
         inputs, labels = batch['images'], batch['labels']
         labels = labels.flatten()
         outputs = self.forward(inputs)
-        loss = triplet_semihard_loss(outputs, labels)
+        loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
         self.trainAcc(outputs.argmax(dim=1), labels)
         self.log('train_loss', loss, on_step=False, on_epoch=True, prog_bar=False)
         return loss
@@ -92,12 +95,8 @@ class TripletLoss(pl.LightningModule):
 
     def validation_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
-        print("labels",np.shape(labels))
         labels = labels.flatten()
-        print("labels",np.shape(labels))
-        print("inputs",np.shape(inputs))
         outputs = self.forward(inputs)
-        print("output", outputs.shape)
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
         
         self.valAcc(outputs.argmax(dim=1), labels)

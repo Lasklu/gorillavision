@@ -2,7 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+embedding-approach/tensorboard/
+reid-manta-master/data
+reid-manta-master/examples
 # C extensions
 *.so
 

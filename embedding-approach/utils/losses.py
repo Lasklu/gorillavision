@@ -61,7 +61,6 @@ def triplet_semihard_loss(y_true, y_preds, device, margin=0.5):
         triplet_loss: tf.float32 scalar.
     """
     labels, embeddings = y_true, y_preds
-    print("y_shape", y_preds.shape)
     # Reshape label tensor to [batch_size, 1].
     lshape = labels.shape
     labels = torch.reshape(labels, [lshape[0], 1])
