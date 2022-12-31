@@ -49,7 +49,6 @@ class TripletLoss(pl.LightningModule):
         #x = preprocess(x)
         #x = x.unsqueeze(0)
         x = self.backend(x)
-        print("shape", x.shape) #batchsize, 1000
         #x = x.view(self.batch_size, 1000, 1, 1)
         #x = x.unsqueeze(2)
 
