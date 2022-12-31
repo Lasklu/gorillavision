@@ -7,7 +7,9 @@ reid-manta-master/data
 reid-manta-master/examples
 # C extensions
 *.so
-
+embedding-approach/tensorboard/
+reid-manta-master/data
+reid-manta-master/examples
 # Distribution / packaging
 .Python
 build/
