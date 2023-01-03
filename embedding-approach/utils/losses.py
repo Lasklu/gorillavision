@@ -107,10 +107,15 @@ def triplet_semihard_loss(y_true, y_preds, device, margin=0.5):
     semi_hard_negatives = torch.where(mask_final, negatives_outside, negatives_inside)
 
     loss_mat = margin + pdist_matrix - semi_hard_negatives
-
+    print("marging", margin)
+    print("pdist", pdist_matrix)
+    print("semi",semi_hard_negatives)
     mask_positives = adjacency.to(dtype=torch.float32) - torch.diag(torch.ones(batch_size)).to(device)
     num_positives = mask_positives.sum()
-
+    #print(mask_positives)
+    #print(loss_mat)#das wird irgendwann nan
+    print("triplet", torch.mul(loss_mat, mask_positives))
     triplet_loss = (torch.max(torch.mul(loss_mat, mask_positives), torch.tensor([0.]).to(device))).sum() / num_positives
     triplet_loss = triplet_loss.to(dtype=embeddings.dtype)
-    return triplet_loss
+    #return triplet_loss
+    return mask
