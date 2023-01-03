@@ -66,6 +66,8 @@ def triplet_semihard_loss(y_true, y_preds, device, margin=0.5):
     labels = torch.reshape(labels, [lshape[0], 1])
 
     pdist_matrix = pairwise_distance(embeddings, device)
+    print("matrix")
+    print(pdist_matrix)
 
     # Build pairwise binary adjacency matrix.
     adjacency = torch.eq(labels, labels.transpose(0, 1))
@@ -73,6 +75,8 @@ def triplet_semihard_loss(y_true, y_preds, device, margin=0.5):
     adjacency_not = adjacency.logical_not()
 
     batch_size = labels.shape[0]
+    print("bath_size")
+    print(batch_size)
 
     # Compute the mask.
     pdist_matrix_tile = pdist_matrix.repeat(batch_size, 1)
@@ -105,6 +109,8 @@ def triplet_semihard_loss(y_true, y_preds, device, margin=0.5):
     negatives_inside = masked_maximums.repeat(1, batch_size)
 
     semi_hard_negatives = torch.where(mask_final, negatives_outside, negatives_inside)
+    print("semi hard negatives")
+    print(semi_hard_negatives)
 
     loss_mat = margin + pdist_matrix - semi_hard_negatives
 

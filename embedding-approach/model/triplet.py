@@ -84,7 +84,11 @@ class TripletLoss(pl.LightningModule):
         inputs, labels = batch['images'], batch['labels']
         labels = labels.flatten()
         outputs = self.forward(inputs)
+        print("outputs")
+        print(outputs)
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
+        print("loss")
+        print(loss)
         self.trainAcc(outputs.argmax(dim=1), labels)
         self.log('train_loss', loss, on_step=False, on_epoch=True, prog_bar=False)
         return loss
