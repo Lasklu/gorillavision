@@ -15,6 +15,7 @@ from typing import Tuple
 import numpy as np
 from .inception import inception_modified as test
 from .inception import InceptionOutputs
+from utils.batch_sampler_triplet import TripletBatchSampler
 
 class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, ):
@@ -26,6 +27,7 @@ class TripletLoss(pl.LightningModule):
         num_classes=self.df["labels_numeric"].nunique()
         self.valAcc = Accuracy("multiclass", num_classes=num_classes)
         self.trainAcc = Accuracy("multiclass", num_classes=num_classes)
+        self.batch_sampler = TripletBatchSampler(batch_size=batch_size)
 
         #backend
         self.backend = test(weights=Inception_V3_Weights.IMAGENET1K_V1)
@@ -60,10 +62,10 @@ class TripletLoss(pl.LightningModule):
 
     def train_dataloader(self):
         # ToDo: Implement data augmentation as in the paper
-        return DataLoader(self.trainDF, batch_size=self.batch_size, shuffle=True, num_workers=4)
+        return DataLoader(self.trainDF, sampler=self.batch_sampler, shuffle=True, num_workers=4)
 
     def val_dataloader(self):
-        return DataLoader(self.validateDF, batch_size=self.batch_size, num_workers=4)
+        return DataLoader(self.validateDF, sampler=self.batch_sampler, num_workers=4)
 
     def training_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
