@@ -6,7 +6,7 @@ from utils.dataset import IndividualsDS
 from sklearn.model_selection import train_test_split#
 from torch.optim import Adam
 from torch.utils.data import DataLoader
-from torch.nn import Linear, Sequential, AdaptiveAvgPool2d
+from torch.nn import Linear, AdaptiveAvgPool2d
 import torch
 import pandas as pd
 from torchvision.models import Inception_V3_Weights
@@ -27,7 +27,7 @@ class TripletLoss(pl.LightningModule):
         num_classes=self.df["labels_numeric"].nunique()
         self.valAcc = Accuracy("multiclass", num_classes=num_classes)
         self.trainAcc = Accuracy("multiclass", num_classes=num_classes)
-        self.batch_sampler = TripletBatchSampler(batch_size=batch_size)
+        self.batch_sampler_train = TripletBatchSampler(batch_size=batch_size)
 
         #backend
         self.backend = test(weights=Inception_V3_Weights.IMAGENET1K_V1)
@@ -54,18 +54,20 @@ class TripletLoss(pl.LightningModule):
 
     def prepare_data(self):
         train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
-        self.trainDF = IndividualsDS(train, self.img_size)
-        self.validateDF = IndividualsDS(validate, self.img_size)
+        self.train_ds = IndividualsDS(train, self.img_size)
+        self.validate_ds = IndividualsDS(validate, self.img_size)
+        self.batch_sampler_train = TripletBatchSampler(ds=self.train_ds, batch_size=self.batch_size)
+        self.batch_sampler_val = TripletBatchSampler(ds=self.validate_ds, batch_size=self.batch_size)
 
     def configure_optimizers(self):
         return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=0.0)
 
     def train_dataloader(self):
         # ToDo: Implement data augmentation as in the paper
-        return DataLoader(self.trainDF, sampler=self.batch_sampler, shuffle=True, num_workers=4)
+        return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=4)
 
     def val_dataloader(self):
-        return DataLoader(self.validateDF, sampler=self.batch_sampler, num_workers=4)
+        return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=4)
 
     def training_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
@@ -79,7 +81,7 @@ class TripletLoss(pl.LightningModule):
     def training_epoch_end(self):
         #self.log('train_acc', self.trainAcc.compute() * 100, prog_bar=True)
         #self.trainAcc.reset()
-        self.log("Episode done")
+        pass
 
     def validation_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
