@@ -39,7 +39,6 @@ def load_data(dataset_path):
                 image = cv2.imread(str(os.path.join(folder_individual, img)))
                 individuals_df["images"].append(image)
                 individuals_df["labels"].append(individual)
-    
     name2lab = dict(enumerate(individuals))
     name2lab.update({v:k for k,v in name2lab.items()})
     individuals_df = pd.DataFrame(individuals_df)

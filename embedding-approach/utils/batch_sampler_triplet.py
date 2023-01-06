@@ -10,17 +10,20 @@ class TripletBatchSampler(BatchSampler):
         self.rng = default_rng(seed=seed)
         self.classes = {}
         # create one df for every class
-        for idx, (x, y) in enumerate(DataLoader(ds)):
-            if y not in self.classes:
-                self.classes[y] = [idx]
+        for idx, row in enumerate(DataLoader(ds)):
+            if row["labels"].item() not in self.classes:
+                self.classes[row["labels"].item()] = [idx]
             else: 
-                self.classes[y].append(idx)
+                self.classes[row["labels"].item()].append(idx)
 
 
     def __iter__(self):
         batch = [0] * self.batch_size
         idx_in_batch = 0
         cur_classes = copy.deepcopy(self.classes)
+        print(type(cur_classes))
+        print(type(list(cur_classes.keys())[0]))
+        print(type(cur_classes[list(cur_classes.keys())[0]]))
         i = 0
         # continue until each el of ds is added to some batch
         while i < len(self.ds):
@@ -32,7 +35,8 @@ class TripletBatchSampler(BatchSampler):
                 if len(cur_classes.items()) == 0:
                     break
                 # randomly select a class from which to select items
-                selected_class = self.rng.choice(cur_classes.keys(),1)
+                selected_class = self.rng.choice(list(cur_classes.keys()),1)[0]
+                print(selected_class)
                 class_vals = cur_classes[selected_class]
                 # if we haven't chosen an item from this class yet we want to choose 2, so that we also have one positive sample
                 if selected_class not in classes_seen:
