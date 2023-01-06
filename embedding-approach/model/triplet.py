@@ -27,7 +27,6 @@ class TripletLoss(pl.LightningModule):
         num_classes=self.df["labels_numeric"].nunique()
         self.valAcc = Accuracy("multiclass", num_classes=num_classes)
         self.trainAcc = Accuracy("multiclass", num_classes=num_classes)
-        self.batch_sampler_train = TripletBatchSampler(batch_size=batch_size)
 
         #backend
         self.backend = test(weights=Inception_V3_Weights.IMAGENET1K_V1)
