@@ -48,12 +48,14 @@ class TripletBatchSampler(BatchSampler):
                         continue
                     # randomly choose two samples from this class and add to batch
                     selected_items = self.rng.choice(class_vals, 2)
+                    print(selected_items[0], selected_items[1])
                     batch[idx_in_batch] = selected_items[0]
                     batch[idx_in_batch+1] = selected_items[1]
                     class_vals.remove(selected_items[0])
                     class_vals.remove(selected_items[1])
                     idx_in_batch += 2
                     positive_selected = True
+                    classes_seen[selected_class] = True
                 else:
                     batch[idx_in_batch] = self.rng.choice(class_vals, 1)
                 if len(class_vals) == 0:
