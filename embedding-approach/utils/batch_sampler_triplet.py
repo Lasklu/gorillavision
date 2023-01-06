@@ -4,10 +4,9 @@ from torch.utils.data import DataLoader
 from numpy.random import default_rng
 
 class TripletBatchSampler(BatchSampler):
-    def __init__(self, ds, batch_size, drop_last=False, seed=123):
+    def __init__(self, ds, batch_size, seed=123):
         self.ds = ds
         self.batch_size = batch_size
-        self.drop_last = drop_last
         self.rng = default_rng(seed=seed)
         self.classes = {}
         # create one df for every class
@@ -69,3 +68,6 @@ class TripletBatchSampler(BatchSampler):
 
         if idx_in_batch > 0:
             yield batch[:idx_in_batch]
+
+    def __len__(self) -> int:
+        return (len(self.ds) + self.batch_size - 1) // self.batch_size 
