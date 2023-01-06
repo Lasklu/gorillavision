@@ -79,3 +79,4 @@ if __name__ == '__main__':
         logger=logger)
         #checkpoint_callback=checkpointCallback)
     trainer.fit(model)
+    
