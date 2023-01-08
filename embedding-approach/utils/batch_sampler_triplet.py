@@ -25,7 +25,6 @@ class TripletBatchSampler(BatchSampler):
         # continue until each el of ds is added to some batch
         while i < len(self.ds):
             classes_seen = {}
-            positive_selected = False
             single_items = []
             while idx_in_batch < self.batch_size:
                 # all items already selected, since ds ws not splittable into equal batches
@@ -33,7 +32,6 @@ class TripletBatchSampler(BatchSampler):
                     break
                 # randomly select a class from which to select items
                 selected_class = self.rng.choice(list(cur_classes.keys()),1)[0]
-                print(selected_class)
                 class_vals = cur_classes[selected_class]
                 # if we haven't chosen an item from this class yet we want to choose 2, so that we also have one positive sample
                 if selected_class not in classes_seen:
@@ -45,13 +43,12 @@ class TripletBatchSampler(BatchSampler):
                         continue
                     # randomly choose two samples from this class and add to batch
                     selected_items = self.rng.choice(class_vals, 2, replace=False)
-                    print(selected_items[0], selected_items[1])
                     batch[idx_in_batch] = selected_items[0]
                     batch[idx_in_batch+1] = selected_items[1]
                     class_vals.remove(selected_items[0])
                     class_vals.remove(selected_items[1])
                     idx_in_batch += 2
-                    positive_selected = True
+                    i += 2
                     classes_seen[selected_class] = True
                 else:
                     batch[idx_in_batch] = self.rng.choice(class_vals, 1)
@@ -63,6 +60,7 @@ class TripletBatchSampler(BatchSampler):
             while len(single_items) > 0 and idx_in_batch < self.batch_size:
                 batch[idx_in_batch] = single_items.pop()
                 idx_in_batch += 1
+                i += 1
 
             yield batch
             idx_in_batch = 0
@@ -71,6 +69,9 @@ class TripletBatchSampler(BatchSampler):
 
         if idx_in_batch > 0:
             yield batch[:idx_in_batch]
+        
+
+        print("Sanity Check - all samples used over all batches: ", i, len(self.ds))
 
     def __len__(self) -> int:
         return (len(self.ds) + self.batch_size - 1) // self.batch_size 
