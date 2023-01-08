@@ -27,7 +27,7 @@ class TripletBatchSampler(BatchSampler):
         while i < len(self.ds):
             classes_seen = {}
             single_items = []
-            while idx_in_batch < self.batch_size:
+            while idx_in_batch < self.batch_size - 1:
                 # all items already selected, since ds ws not splittable into equal batches
                 if len(cur_classes.items()) == 0:
                     break
@@ -46,14 +46,15 @@ class TripletBatchSampler(BatchSampler):
                     selected_items = self.rng.choice(class_vals, 2, replace=False)
                     batch[idx_in_batch] = selected_items[0]
                     batch[idx_in_batch+1] = selected_items[1]
-                    idx_seen.append(selected_items[0], selected_items[1])
+                    idx_seen.append(selected_items[0])
+                    idx_seen.append(selected_items[1])
                     class_vals.remove(selected_items[0])
                     class_vals.remove(selected_items[1])
                     idx_in_batch += 2
                     i += 2
                     classes_seen[selected_class] = True
                 else:
-                    batch[idx_in_batch] = self.rng.choice(class_vals, 1)
+                    batch[idx_in_batch] = self.rng.choice(class_vals, 1)[0]
                     idx_seen.append(batch[idx_in_batch])
                     idx_in_batch += 1
                     i += 1
