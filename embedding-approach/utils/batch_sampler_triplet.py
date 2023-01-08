@@ -22,6 +22,7 @@ class TripletBatchSampler(BatchSampler):
         idx_in_batch = 0
         cur_classes = copy.deepcopy(self.classes)
         i = 0
+        idx_seen = []
         # continue until each el of ds is added to some batch
         while i < len(self.ds):
             classes_seen = {}
@@ -45,6 +46,7 @@ class TripletBatchSampler(BatchSampler):
                     selected_items = self.rng.choice(class_vals, 2, replace=False)
                     batch[idx_in_batch] = selected_items[0]
                     batch[idx_in_batch+1] = selected_items[1]
+                    idx_seen.append(selected_items[0], selected_items[1])
                     class_vals.remove(selected_items[0])
                     class_vals.remove(selected_items[1])
                     idx_in_batch += 2
@@ -52,6 +54,9 @@ class TripletBatchSampler(BatchSampler):
                     classes_seen[selected_class] = True
                 else:
                     batch[idx_in_batch] = self.rng.choice(class_vals, 1)
+                    idx_seen.append(batch[idx_in_batch])
+                    idx_in_batch += 1
+                    i += 1
                 if len(class_vals) == 0:
                     # if we just removed the last samples from this class, remove class so that we can break when all classes are empty
                     cur_classes.pop(selected_class, None)
@@ -59,6 +64,7 @@ class TripletBatchSampler(BatchSampler):
             # if still space in batch, fill up with single items that can be used as negatives
             while len(single_items) > 0 and idx_in_batch < self.batch_size:
                 batch[idx_in_batch] = single_items.pop()
+                idx_seen.append(batch[idx_in_batch])
                 idx_in_batch += 1
                 i += 1
 
@@ -66,12 +72,12 @@ class TripletBatchSampler(BatchSampler):
             idx_in_batch = 0
             batch = [0] * self.batch_size
             cur_classes = copy.deepcopy(self.classes)
-
+        
         if idx_in_batch > 0:
             yield batch[:idx_in_batch]
         
 
-        print("Sanity Check - all samples used over all batches: ", i, len(self.ds))
+        print("Sanity Check - all samples used over all batches: ", i, len(self.ds), len(idx_seen) == len(set(idx_seen)))
 
     def __len__(self) -> int:
         return (len(self.ds) + self.batch_size - 1) // self.batch_size 
