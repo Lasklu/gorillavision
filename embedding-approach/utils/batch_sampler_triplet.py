@@ -48,15 +48,15 @@ class TripletBatchSampler(BatchSampler):
                     batch[idx_in_batch+1] = selected_items[1]
                     idx_seen.append(selected_items[0])
                     idx_seen.append(selected_items[1])
-                    class_vals.remove(selected_items[0])
-                    class_vals.remove(selected_items[1])
+                    cur_classes[selected_class].remove(selected_items[0])
+                    cur_classes[selected_class].remove(selected_items[1])
                     idx_in_batch += 2
                     i += 2
                     classes_seen[selected_class] = True
                 else:
                     batch[idx_in_batch] = self.rng.choice(class_vals, 1)[0]
                     idx_seen.append(batch[idx_in_batch])
-                    class_vals.remove(batch[idx_in_batch])
+                    cur_classes[selected_class].remove(batch[idx_in_batch])
                     idx_in_batch += 1
                     i += 1
                 if len(class_vals) == 0:
