@@ -16,6 +16,7 @@ import numpy as np
 from .inception import inception_modified as test
 from .inception import InceptionOutputs
 from utils.batch_sampler_triplet import TripletBatchSampler
+from utils.batch_sampler_ensure_positives import BatchSamplerEnsurePositives
 
 class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, ):
@@ -55,8 +56,8 @@ class TripletLoss(pl.LightningModule):
         train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
         self.train_ds = IndividualsDS(train, self.img_size)
         self.validate_ds = IndividualsDS(validate, self.img_size)
-        self.batch_sampler_train = TripletBatchSampler(ds=self.train_ds, batch_size=self.batch_size)
-        self.batch_sampler_val = TripletBatchSampler(ds=self.validate_ds, batch_size=self.batch_size)
+        self.batch_sampler_train = BatchSamplerEnsurePositives(ds=self.train_ds, batch_size=self.batch_size)
+        self.batch_sampler_val = BatchSamplerEnsurePositives(ds=self.validate_ds, batch_size=self.batch_size)
 
     def configure_optimizers(self):
         return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=0.0)
