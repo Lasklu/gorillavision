@@ -56,6 +56,7 @@ class TripletBatchSampler(BatchSampler):
                 else:
                     batch[idx_in_batch] = self.rng.choice(class_vals, 1)[0]
                     idx_seen.append(batch[idx_in_batch])
+                    class_vals.remove(batch[idx_in_batch])
                     idx_in_batch += 1
                     i += 1
                 if len(class_vals) == 0:
