@@ -10,7 +10,8 @@ from torch.nn import Linear, AdaptiveAvgPool2d
 import torch
 import pandas as pd
 from torchvision.models import Inception_V3_Weights
-from torchvision import transforms
+  ProxyJump ssh-proxy
+  ServerAliveInterval 30from torchvision import transforms
 from typing import Tuple
 import numpy as np
 from .inception import inception_modified as test
