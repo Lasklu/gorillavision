@@ -11,14 +11,14 @@ def main():
     with torch.no_grad():
         embedding = model(img)
 
-    # Load embedding_db
-
+    # Load embedding_db file
 
     # Fit knn
-    #KNN.predict(db, embedding, 10)
+    # something like KNN.predict(db, embedding, 10)
 
     # Based on top-10 predictions and the according distance, apply a treshhold to check whether we are dealing 
     # with a new individual. If so, add it to db with new label.
+    # if not return a majority vote of knn or the first as the prediction for this input
 
 if __name__ == "__main__":
     main()
