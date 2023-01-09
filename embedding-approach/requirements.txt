@@ -1,7 +1,6 @@
-torch
-torchvision
+torchvision==0.14.1
 numpy
-opencv-python
+opencv-python==4.5.5.64
 pandas
 pytorch_lightning
 scikit-learn

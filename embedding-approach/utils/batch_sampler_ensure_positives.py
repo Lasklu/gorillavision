@@ -14,7 +14,7 @@ class BatchSamplerEnsurePositives(BatchSampler):
         # create one df for every class
         for idx, row in enumerate(DataLoader(ds)):
             self.labels.append(row["labels"].item())
-            if row["labels"].item() not in self.classes:
+            if row["labels"].item() not in self.classes_ds:
                 self.classes_ds[row["labels"].item()] = [idx]
             else: 
                 self.classes_ds[row["labels"].item()].append(idx)
@@ -39,8 +39,10 @@ class BatchSamplerEnsurePositives(BatchSampler):
         batch = [0] * self.batch_size
         idx_in_batch = 0
         idxes = range(0, len(self.ds))
-        for idx in idxes:
-            batch[idx_in_batch] = idx
+        count = 0
+        while count < len(self.ds):
+            batch[idx_in_batch] = idxes[count]
+            count += 1
             idx_in_batch += 1
             if idx_in_batch == self.batch_size:
                 if not self.contains_positive_sample(batch):
@@ -48,11 +50,13 @@ class BatchSamplerEnsurePositives(BatchSampler):
                     positive_idx = self.get_positive_sample_for(idx_anchor)
                     batch.pop()
                     batch.append(positive_idx)
+                print("Batch created", len(batch), count, self.contains_positive_sample(batch))
                 yield batch
                 idx_in_batch = 0
                 batch = [0] * self.batch_size
         if idx_in_batch > 0:
             yield batch[:idx_in_batch]
+        count = 0
 
     def __len__(self) -> int:
         return (len(self.ds) + self.batch_size - 1) // self.batch_size 
