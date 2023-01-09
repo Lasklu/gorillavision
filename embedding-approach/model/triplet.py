@@ -74,14 +74,13 @@ class TripletLoss(pl.LightningModule):
         labels = labels.flatten()
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
-        #self.trainAcc(outputs.argmax(dim=1), labels)
-        #self.log('train_loss', loss, on_step=False, ontripe_epoch=True, prog_bar=False)
+        self.trainAcc(outputs.argmax(dim=1), labels)
+        self.log('train_loss', loss, on_step=False, ontripe_epoch=True, prog_bar=False)
         return loss
 
     def training_epoch_end(self, training_step_outputs):
-        #self.log('train_acc', self.trainAcc.compute() * 100, prog_bar=True)
-        #self.trainAcc.reset()
-        pass
+        self.log('train_acc', self.trainAcc.compute() * 100, prog_bar=True)
+        self.trainAcc.reset()
 
     def validation_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
