@@ -1,4 +1,5 @@
 from model.triplet import TripletLoss
+from utils.dataset_utils import load_data
 from sklearn.neighbors import NearestNeighbors
 import torch
 from cv2 import imread
@@ -9,16 +10,18 @@ import pandas as pd
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument('-c','--conf', help='name of the configuration file in config folder', default='config.json')
+argparser.add_argument('-n', '--model-name', help='name of the model', default='model')
 
 def main():
-
-    conf_name = argparser.parse_args().conf
+    args = argparser.parse_args()
+    conf_name = args.conf
+    model_name = args.model_name
     config_path = os.path.join("./configs", conf_name)
     with open(config_path) as config_buffer:    
         config = json.loads(config_buffer.read())
 
     # Load Model
-    model = TripletLoss.load_from_checkpoint(config["predict"]["model_path"])
+    model = TripletLoss.load_from_checkpoint(f"{config['predict']['model_path']}/{model_name}")
     img = imread(config["predict"]["img_path"])
     with torch.no_grad():
         predicted_embedding = model(img)
