@@ -7,7 +7,7 @@ import cv2
 import torch
 import numpy as np
 from model.triplet import TripletLoss
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 from typing import Tuple
 ###############################
@@ -74,10 +74,12 @@ if __name__ == '__main__':
         verbose=True,
         monitor='val_acc',
         mode='max')
+    early_stop_callback = EarlyStopping(monitor="val_acc", min_delta=10e-8, patience=3, verbose=False, mode="max")
 
     trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,
         max_epochs=config["train"]["nb_epochs"],
         logger=logger,
+        callbacks=[early_stop_callback],
         checkpoint_callback=checkpointCallback)
     trainer.fit(model)
     
