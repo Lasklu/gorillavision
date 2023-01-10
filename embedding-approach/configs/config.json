@@ -21,5 +21,11 @@
         "db_path":   "",
         "model_path": "",
         "img_path": ""
+    },
+
+    "build_db": {
+        "image_folder": "",
+        "db_file": "",
+        "pretrained_model_path": ""
     }
 }
