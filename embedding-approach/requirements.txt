@@ -1,7 +1,7 @@
 torchvision==0.14.1
 numpy
 opencv-python==4.5.5.64
-pandas
+pandas==1.2.5
 pytorch_lightning
 scikit-learn
 torchmetrics
