@@ -1,6 +1,8 @@
 import os
 import csv
 import cv2
+from model.triplet import TripletLoss
+import torch
 
 def main():
     image_folder = ""

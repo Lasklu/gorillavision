@@ -15,5 +15,11 @@
         "batch_size":           128,
         "learning_rate":        1e-5,
         "nb_epochs":            400
+    },
+
+    "predict":{
+        "db_path":   "",
+        "model_path": "",
+        "img_path": ""
     }
 }
