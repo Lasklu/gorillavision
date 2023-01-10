@@ -21,6 +21,7 @@ from utils.batch_sampler_ensure_positives import BatchSamplerEnsurePositives
 class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, ):
         super(TripletLoss, self).__init__()
+        self.save_hyperparameters()
         self.df = df
         self.batch_size = batch_size
         self.lr = lr
@@ -43,6 +44,7 @@ class TripletLoss(pl.LightningModule):
                         transforms.ToTensor(),
                         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
                     ])
+        print("shape",np.shape(x))
         x = self.backend(x)
         if isinstance(x, InceptionOutputs):
             x = x.logits
@@ -75,7 +77,8 @@ class TripletLoss(pl.LightningModule):
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
         self.trainAcc(outputs.argmax(dim=1), labels)
-        self.log('train_loss', loss, on_step=False, ontripe_epoch=True, prog_bar=False)
+        #self.log('train_loss', loss, on_step=False, ontripe_epoch=True, prog_bar=False)
+        #self.log('train_loss', loss, on_step=False, prog_bar=False)
         return loss
 
     def training_epoch_end(self, training_step_outputs):
