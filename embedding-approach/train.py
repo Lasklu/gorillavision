@@ -69,7 +69,7 @@ if __name__ == '__main__':
         img_size=img_size)
     logger = TensorBoardLogger("./tensorboard", name="reID-model")
     checkpointCallback = ModelCheckpoint(
-        dirpath=config["train"]["model_save_path"],
+        dirpath=config["model"]["model_save_path"],
         filename='{epoch}-{val_loss:.2f}-{val_acc:.2f}',
         verbose=True,
         monitor='val_acc',
@@ -79,7 +79,6 @@ if __name__ == '__main__':
     trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,
         max_epochs=config["train"]["nb_epochs"],
         logger=logger,
-        callbacks=[early_stop_callback],
-        checkpoint_callback=checkpointCallback)
+        callbacks=[early_stop_callback, checkpointCallback])
     trainer.fit(model)
     
