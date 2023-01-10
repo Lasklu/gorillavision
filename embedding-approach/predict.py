@@ -2,7 +2,9 @@ from model.triplet import TripletLoss
 from utils.dataset_utils import load_data
 from sklearn.neighbors import NearestNeighbors
 import torch
+from torchvision.transforms import Compose, Resize, ToPILImage, ToTensor
 from cv2 import imread
+import numpy as np
 import argparse
 import os
 import json
@@ -22,7 +24,9 @@ def main():
 
     # Load Model
     model = TripletLoss.load_from_checkpoint(f"{config['predict']['model_path']}/{model_name}")
-    img = imread(config["predict"]["img_path"])
+    img = transform_image(imread(config["predict"]["img_path"]), (config['model']['input_width'], config['model']['input_height']))
+    print("shape", np.shape(img))
+    #img=torch.from_numpy(img).float()
     with torch.no_grad():
         predicted_embedding = model(img)
 
@@ -44,6 +48,15 @@ def main():
     # Based on top-10 predictions and the according distance, apply a treshhold to check whether we are dealing 
     # with a new individual. If so, add it to db with new label.
     # if not return a majority vote of knn or the first as the prediction for this input
+
+def transform_image(img, img_size):
+    transformations = Compose([
+            ToPILImage(),
+            Resize(img_size),
+            ToTensor(),
+        ])
+    img = transformations(img)
+    return torch.unsqueeze(s, dim=0) #remove this when having multiple images
 
 if __name__ == "__main__":
     main()
