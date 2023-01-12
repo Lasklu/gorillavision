@@ -27,8 +27,9 @@ class TripletLoss(pl.LightningModule):
         self.lr = lr
         self.img_size = img_size
         num_classes=self.df["labels_numeric"].nunique()
-        self.valAcc = Accuracy("multiclass", num_classes=num_classes)
-        self.trainAcc = Accuracy("multiclass", num_classes=num_classes)
+        print("DGHHWG", num_classes)
+        #self.valAcc = Accuracy("multiclass", num_classes=num_classes)
+        #self.trainAcc = Accuracy("multiclass", num_classes=num_classes)
 
         #backend
         self.backend = test(weights=Inception_V3_Weights.IMAGENET1K_V1)
@@ -65,38 +66,46 @@ class TripletLoss(pl.LightningModule):
 
     def train_dataloader(self):
         # ToDo: Implement data augmentation as in the paper
-        return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=4)
+        return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
 
     def val_dataloader(self):
-        return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=4)
+        return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=8)
 
     def training_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
         labels = labels.flatten()
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
-        self.trainAcc(outputs.argmax(dim=1), labels)
+        #self.trainAcc(outputs.argmax(dim=1), labels)
         #self.log('train_loss', loss, on_step=False, ontripe_epoch=True, prog_bar=False)
         #self.log('train_loss', loss, on_step=False, prog_bar=False)
         return loss
 
     def training_epoch_end(self, training_step_outputs):
-        self.log('train_acc', self.trainAcc.compute() * 100, prog_bar=True)
-        self.trainAcc.reset()
+        #self.log('train_acc', self.trainAcc.compute() * 100, prog_bar=True)
+        #self.trainAcc.reset()
+        pass
 
     def validation_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
+        #print("labels", labels)
+        #print("labels", np.shape(labels))
         labels = labels.flatten()
         outputs = self.forward(inputs)
+
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
-        
-        self.valAcc(outputs.argmax(dim=1), labels)
+        #print("loss", loss)
+        #print("outputs", outputs)
+        #print("outputs", np.shape(outputs))
+        #print("labels", labels)
+        #print("labels", np.shape(labels))
+        #self.valAcc(outputs.argmax(dim=1), labels)
         
         return {'val_loss': loss}
     
     def validation_epoch_end(self, validationStepOutputs):
         avgLoss = torch.stack([x['val_loss'] for x in validationStepOutputs]).mean()
-        valAcc = self.valAcc.compute() * 100
-        self.valAcc.reset()
+        #valAcc = self.valAcc.compute() * 100
+        #self.valAcc.reset()
         self.log('val_loss', avgLoss, prog_bar=True)
-        self.log('val_acc', valAcc, prog_bar=True)
+        #self.log('val_acc', valAcc, prog_bar=True)

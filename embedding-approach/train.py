@@ -45,15 +45,16 @@ if __name__ == '__main__':
     logger = TensorBoardLogger("./tensorboard", name="reID-model")
     checkpointCallback = ModelCheckpoint(
         dirpath=config["model"]["model_save_path"],
-        filename='{epoch}-{val_loss:.2f}-{val_acc:.2f}',
+        filename='{epoch}-{val_loss:.2f}',
         verbose=True,
-        monitor='val_acc',
-        mode='max')
-    early_stop_callback = EarlyStopping(monitor="val_acc", min_delta=10e-8, patience=3, verbose=False, mode="max")
+        monitor='val_loss',
+        mode='min')
+    #early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=10e-8, patience=3, verbose=False, mode="min")
 
     trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,
         max_epochs=config["train"]["nb_epochs"],
         logger=logger,
-        callbacks=[early_stop_callback, checkpointCallback])
+        callbacks=[checkpointCallback])
+    print("training")
     trainer.fit(model)
     
