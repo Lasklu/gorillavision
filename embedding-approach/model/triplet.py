@@ -31,7 +31,7 @@ class TripletLoss(pl.LightningModule):
         #self.valAcc = Accuracy("multiclass", num_classes=num_classes)
         #self.trainAcc = Accuracy("multiclass", num_classes=num_classes)
 
-        #backend
+        # backend
         self.backend = test(weights=Inception_V3_Weights.IMAGENET1K_V1)
         self.backend.eval()
         # "frontend"
