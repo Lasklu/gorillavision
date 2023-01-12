@@ -3,7 +3,7 @@ import pytorch_lightning as pl
 from torchmetrics import Accuracy
 from torch import Tensor
 from utils.dataset import IndividualsDS
-from sklearn.model_selection import train_test_split#
+from sklearn.model_selection import train_test_split
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torch.nn import Linear, AdaptiveAvgPool2d
@@ -17,6 +17,7 @@ from .inception import inception_modified as test
 from .inception import InceptionOutputs
 from utils.batch_sampler_triplet import TripletBatchSampler
 from utils.batch_sampler_ensure_positives import BatchSamplerEnsurePositives
+from utils.dataset_utils import custom_train_val_split
 
 class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, ):
@@ -50,7 +51,7 @@ class TripletLoss(pl.LightningModule):
         return x
 
     def prepare_data(self):
-        train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
+        train, validate = custom_train_val_split(self.df, test_size=0.3, random_state=0, label_col_name="labels_numeric")
         self.train_ds = IndividualsDS(train, self.img_size)
         self.validate_ds = IndividualsDS(validate, self.img_size)
         self.batch_sampler_train = BatchSamplerEnsurePositives(ds=self.train_ds, batch_size=self.batch_size)
