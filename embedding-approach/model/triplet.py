@@ -27,15 +27,16 @@ class TripletLoss(pl.LightningModule):
         self.lr = lr
         self.img_size = img_size
         num_classes=self.df["labels_numeric"].nunique()
-        print("DGHHWG", num_classes)
+        print("Amount of individuals", num_classes)
         #self.valAcc = Accuracy("multiclass", num_classes=num_classes)
         #self.trainAcc = Accuracy("multiclass", num_classes=num_classes)
 
-        # backend
+        # backend building a feature map
         self.backend = test(weights=Inception_V3_Weights.IMAGENET1K_V1)
         self.backend.eval()
-        # "frontend"
+        # global average pooling over feature maps to avoid overfitting
         self.pooling = AdaptiveAvgPool2d((5,5))
+        # filly connected layer to create the embedding vector
         self.linear = Linear(2048*5*5, embedding_size)
     
     def forward(self, x: Tensor):
