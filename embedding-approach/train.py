@@ -41,6 +41,7 @@ if __name__ == '__main__':
         embedding_size=config["model"]["embedding_size"],
         lr=config["train"]["learning_rate"],
         batch_size=config["train"]["batch_size"],
+        sampler=config["train"]["sampler"],
         img_size=img_size)
     logger = TensorBoardLogger("./tensorboard", name="reID-model")
     checkpointCallback = ModelCheckpoint(
@@ -58,6 +59,7 @@ if __name__ == '__main__':
         "embedding_size":config["model"]["embedding_size"],
         "batch_size": config["train"]["batch_size"],
         "max_epochs": config["train"]["nb_epochs"],
+        "sampler": config["train"]["sampler"]
     }
 
     print("Initializing Trainer")

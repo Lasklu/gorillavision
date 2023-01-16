@@ -14,7 +14,8 @@
     "train":{
         "batch_size":           64,
         "learning_rate":        1e-5,
-        "nb_epochs":            400
+        "nb_epochs":            400,
+        "sampler": "class_sampler"
     },
 
     "predict":{

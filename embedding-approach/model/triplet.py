@@ -22,13 +22,14 @@ from utils.dataset_utils import custom_train_val_split
 import wandb
 
 class TripletLoss(pl.LightningModule):
-    def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, ):
+    def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, sampler="class_sampler"):
         super(TripletLoss, self).__init__()
         self.save_hyperparameters()
         self.df = df
         self.batch_size = batch_size
         self.lr = lr
         self.img_size = img_size
+        self.sampler = sampler
         num_classes=self.df["labels_numeric"].nunique()
         print("Amount of individuals", num_classes)
         #self.valAcc = Accuracy("multiclass", num_classes=num_classes)
@@ -57,8 +58,9 @@ class TripletLoss(pl.LightningModule):
         train, validate = custom_train_val_split(self.df, test_size=0.3, random_state=0, label_col_name="labels_numeric")
         self.train_ds = IndividualsDS(train, self.img_size)
         self.validate_ds = IndividualsDS(validate, self.img_size)
-        self.batch_sampler_train = BatchSamplerByClass(ds=self.train_ds)
-        self.batch_sampler_val = BatchSamplerByClass(ds=self.validate_ds)
+        if self.sampler == "class_sampler":
+            self.batch_sampler_train = BatchSamplerByClass(ds=self.train_ds)
+            self.batch_sampler_val = BatchSamplerByClass(ds=self.validate_ds)
         print("Preparing Data completed.")
 
     def configure_optimizers(self):
@@ -66,12 +68,18 @@ class TripletLoss(pl.LightningModule):
 
     def train_dataloader(self):
         # ToDo: Implement data augmentation as in the paper
-        # return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
-        return DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
+        if self.sampler == "class_sampler":
+            return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
+        elif self.sampler == "random_sampler":
+            return DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
+        raise Exception("No sampler specified")
 
     def val_dataloader(self):
-        #return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=8)
-        return DataLoader(self.validate_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
+        if self.sampler == "class_sampler":
+            return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=8)
+        elif self.sampler == "random_sampler":
+            return DataLoader(self.validate_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
+        raise Exception("No sampler specified")
 
     def training_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
