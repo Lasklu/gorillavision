@@ -1,6 +1,5 @@
 from utils.losses import triplet_semihard_loss
 import pytorch_lightning as pl
-from torchmetrics import Accuracy
 from torch import Tensor
 from utils.dataset import IndividualsDS
 from sklearn.model_selection import train_test_split
@@ -32,8 +31,6 @@ class TripletLoss(pl.LightningModule):
         self.sampler = sampler
         num_classes=self.df["labels_numeric"].nunique()
         print("Amount of individuals", num_classes)
-        #self.valAcc = Accuracy("multiclass", num_classes=num_classes)
-        #self.trainAcc = Accuracy("multiclass", num_classes=num_classes)
 
         # backend building a feature map
         self.backend = test(weights=Inception_V3_Weights.IMAGENET1K_V1)
@@ -86,13 +83,10 @@ class TripletLoss(pl.LightningModule):
         labels = labels.flatten()
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
-        #self.trainAcc(outputs.argmax(dim=1), labels)
         wandb.log({'train_loss': loss})
         return loss
 
     def training_epoch_end(self, training_step_outputs):
-        #self.log('train_acc', self.trainAcc.compute() * 100, prog_bar=True)
-        #self.trainAcc.reset()
         pass
 
     def validation_step(self, batch: dict, _batch_idx: int):
@@ -103,14 +97,11 @@ class TripletLoss(pl.LightningModule):
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
         self.log('val_loss', loss)
         wandb.log({'val_loss': loss})
-        #self.valAcc(outputs.argmax(dim=1), labels)
         
         return {'val_loss': loss}
     
     def validation_epoch_end(self, validationStepOutputs):
         avgLoss = torch.stack([x['val_loss'] for x in validationStepOutputs]).mean()
-        #valAcc = self.valAcc.compute() * 100
-        #self.valAcc.reset()
         self.log('avg_val_loss_epoch', avgLoss, prog_bar=True)
         wandb.log({'avg_val_loss_epoch': avgLoss})
-        #self.log('val_acc', valAcc, prog_bar=True)
+
