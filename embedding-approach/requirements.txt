@@ -5,3 +5,4 @@ pandas==1.2.5
 pytorch_lightning
 scikit-learn
 torchmetrics
+wandb

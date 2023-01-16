@@ -7,6 +7,7 @@ import cv2
 import torch
 from cv2 import imread
 import numpy as np
+import wandb
 from model.triplet import TripletLoss
 from utils.dataset_utils import load_data
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
@@ -38,6 +39,7 @@ if __name__ == '__main__':
     model = TripletLoss(df=df,
         embedding_size=config["model"]["embedding_size"],
         lr=config["train"]["learning_rate"],
+        batch_size=config["train"]["batch_size"],
         img_size=img_size)
     logger = TensorBoardLogger("./tensorboard", name="reID-model")
     checkpointCallback = ModelCheckpoint(
@@ -47,6 +49,15 @@ if __name__ == '__main__':
         monitor='val_loss',
         mode='min')
     #early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=10e-8, patience=3, verbose=False, mode="min")
+
+    # setup wandb
+    wandb.init(project="triplet-approach", entity="gorilla-reid")
+    wandb.config = {
+        "learning_rate": config["train"]["learning_rate"],
+        "embedding_size":config["model"]["embedding_size"],
+        "batch_size": config["train"]["batch_size"],
+        "max_epochs": config["train"]["nb_epochs"],
+    }
 
     # fit model on data
     trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,

@@ -1,6 +1,6 @@
 {
     "data": {
-        "path": "/data/cropped",
+        "path": "/data/data/train",
         "split_seed": 123
     },
 
@@ -12,15 +12,15 @@
     },
 
     "train":{
-        "batch_size":           128,
+        "batch_size":           64,
         "learning_rate":        1e-5,
         "nb_epochs":            400
     },
 
     "predict":{
-        "db_path":   "",
-        "model_path": "",
-        "img_path": ""
+        "db_path":   "/gorilla-reidentification/embedding-approach/database",
+        "model_path": "/data/models/epoch=273-val_loss=0.00.ckpt",
+        "img_path": "/data/data/eval/US02/US02_R033_20220116_387a.png"
     },
 
     "build_db": {

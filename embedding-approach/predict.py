@@ -24,7 +24,7 @@ def main():
         config = json.loads(config_buffer.read())
 
     # Load Model
-    model = TripletLoss.load_from_checkpoint(f"{config['predict']['model_path']}/{model_name}")
+    model = TripletLoss.load_from_checkpoint(f"{config['predict']['model_path']}")
     img = transform_image(imread(config["predict"]["img_path"]), (config['model']['input_width'], config['model']['input_height']))
     #img=torch.from_numpy(img).float()
     with torch.no_grad():
@@ -39,6 +39,7 @@ def main():
     nn_classifier = neighbors.KNeighborsClassifier()
     nn_classifier.fit(embeddings, labels)
     print(nn_classifier.predict(predicted_embedding.numpy()))
+    print([labels[i] for i in nn_classifier.kneighbors(predicted_embedding.numpy(), 10)[1][0]])
     # predict k nearest neighbours
     
     #distances, indices  = nn_classifier.kneighbors(predicted_embedding, n_neighbors=10)

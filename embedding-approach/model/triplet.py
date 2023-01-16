@@ -18,6 +18,7 @@ from .inception import InceptionOutputs
 from utils.batch_sampler_triplet import TripletBatchSampler
 from utils.batch_sampler_ensure_positives import BatchSamplerEnsurePositives
 from utils.dataset_utils import custom_train_val_split
+import wandb
 
 class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, ):
@@ -62,10 +63,12 @@ class TripletLoss(pl.LightningModule):
 
     def train_dataloader(self):
         # ToDo: Implement data augmentation as in the paper
-        return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
+        #return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
+        return DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
 
     def val_dataloader(self):
-        return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=8)
+        #return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=8)
+        return DataLoader(self.validate_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
 
     def training_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
@@ -73,8 +76,7 @@ class TripletLoss(pl.LightningModule):
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
         #self.trainAcc(outputs.argmax(dim=1), labels)
-        #self.log('train_loss', loss, on_step=False, ontripe_epoch=True, prog_bar=False)
-        #self.log('train_loss', loss, on_step=False, prog_bar=False)
+        wandb.log({'train_loss': loss})
         return loss
 
     def training_epoch_end(self, training_step_outputs):
@@ -84,17 +86,12 @@ class TripletLoss(pl.LightningModule):
 
     def validation_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']
-        #print("labels", labels)
-        #print("labels", np.shape(labels))
         labels = labels.flatten()
         outputs = self.forward(inputs)
 
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
-        #print("loss", loss)
-        #print("outputs", outputs)
-        #print("outputs", np.shape(outputs))
-        #print("labels", labels)
-        #print("labels", np.shape(labels))
+        self.log('val_loss', loss)
+        wandb.log({'val_loss': loss})
         #self.valAcc(outputs.argmax(dim=1), labels)
         
         return {'val_loss': loss}
@@ -103,5 +100,6 @@ class TripletLoss(pl.LightningModule):
         avgLoss = torch.stack([x['val_loss'] for x in validationStepOutputs]).mean()
         #valAcc = self.valAcc.compute() * 100
         #self.valAcc.reset()
-        self.log('val_loss', avgLoss, prog_bar=True)
+        self.log('avg_val_loss_epoch', avgLoss, prog_bar=True)
+        wandb.log({'avg_val_loss_epoch': avgLoss})
         #self.log('val_acc', valAcc, prog_bar=True)

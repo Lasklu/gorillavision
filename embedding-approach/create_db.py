@@ -8,9 +8,9 @@ import pandas as pd
 import numpy as np
 from utils.image import transform_image
 def main():
-    image_folder = "/data/cropped"
+    image_folder = "/data/data/test"
     db_file = "/gorilla-reidentification/embedding-approach/database"
-    pretrained_model_path = "/data/models/epoch=2-val_loss=0.69-val_acc=1.59.ckpt"
+    pretrained_model_path = "/data/models/epoch=273-val_loss=0.00.ckpt"
     config_path = "/gorilla-reidentification/embedding-approach/configs/config.json"
     with open(config_path) as config_buffer:    
         config = json.loads(config_buffer.read())
@@ -30,8 +30,8 @@ def main():
                 img = transform_image(imread(img_path), (config['model']['input_width'], config['model']['input_height']))
                 labels.append(label[:4])
                 embeddings.append(model(img).numpy()[0])
-    np.save(os.path.join(config["predict"]["db_path"], "labels.npy"), np.array(labels))
-    np.save(os.path.join(config["predict"]["db_path"], "embeddings.npy"), np.array(embeddings))
+    np.save(os.path.join(config["predict"]["db_path"], "database/labels.npy"), np.array(labels))
+    np.save(os.path.join(config["predict"]["db_path"], "database/embeddings.npy"), np.array(embeddings))
     
 
 if __name__ == '__main__':
