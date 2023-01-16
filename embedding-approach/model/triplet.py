@@ -17,6 +17,7 @@ from .inception import inception_modified as test
 from .inception import InceptionOutputs
 from utils.batch_sampler_triplet import TripletBatchSampler
 from utils.batch_sampler_ensure_positives import BatchSamplerEnsurePositives
+from utils.batch_sampler_by_class import BatchSamplerByClass
 from utils.dataset_utils import custom_train_val_split
 import wandb
 
@@ -52,18 +53,20 @@ class TripletLoss(pl.LightningModule):
         return x
 
     def prepare_data(self):
+        print("Preparing Data...")
         train, validate = custom_train_val_split(self.df, test_size=0.3, random_state=0, label_col_name="labels_numeric")
         self.train_ds = IndividualsDS(train, self.img_size)
         self.validate_ds = IndividualsDS(validate, self.img_size)
-        self.batch_sampler_train = BatchSamplerEnsurePositives(ds=self.train_ds, batch_size=self.batch_size)
-        self.batch_sampler_val = BatchSamplerEnsurePositives(ds=self.validate_ds, batch_size=self.batch_size)
+        self.batch_sampler_train = BatchSamplerByClass(ds=self.train_ds)
+        self.batch_sampler_val = BatchSamplerByClass(ds=self.validate_ds)
+        print("Preparing Data completed.")
 
     def configure_optimizers(self):
         return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=0.0)
 
     def train_dataloader(self):
         # ToDo: Implement data augmentation as in the paper
-        #return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
+        # return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
         return DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
 
     def val_dataloader(self):

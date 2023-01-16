@@ -33,25 +33,18 @@ def load_data(dataset_path):
     return individuals_df
 
 def custom_train_val_split(df, test_size=0.3, random_state=0, label_col_name="labels_numeric"):
+    # split into train and val set without overlapping individiuals
     np.random.seed(random_state)
-    num_samples = len(df)
-    num_samples_val = math.floor(test_size * len(df))
-    label_counts = df.groupby('labels_numeric').size().reset_index(name='counts')
-    classes_to_pick_from = label_counts.set_index('labels_numeric')['counts'].to_dict()
+    individuals = df[label_col_name].unique().tolist()
+    num_individuals = len(individuals)
+    num_individuals_val = math.floor(test_size * num_individuals)
+    np.random.shuffle(individuals)
+    individuals_val = individuals[:num_individuals_val]
+    individuals_train = individuals[num_individuals_val:]
+    df_train = df.query(f"{label_col_name} in {individuals_train}")
+    df_val = df.query(f"{label_col_name} in {individuals_val}")
 
-    df_val = pd.DataFrame(columns=df.columns)
-    for i in range(0, num_samples_val):
-        cls_keys = list(classes_to_pick_from.keys())
-        if len(cls_keys) < 1:
-            raise Exception("Not enough classes satisfying the criterion available")
-        selected_cls = np.random.choice(cls_keys)
-        sample = df.query(f"{label_col_name} == {selected_cls}").sample(random_state=random_state)
-        df_val = df_val.append(sample, ignore_index=True)
-        df = df.drop(sample.index)
-        classes_to_pick_from[selected_cls] -= 1
-        if classes_to_pick_from[selected_cls] < 3:
-            classes_to_pick_from.pop(selected_cls, None)
-    
-    df = df.reset_index()
-    df2 = df_val.reset_index()
-    return df, df_val
+    df_train = df_train.reset_index()
+    df_val = df_val.reset_index()
+    print(f"Train test split completed. Individuals in train set: {len(individuals_train)}. Individuals in validation set: {len(individuals_val)}")
+    return df_train, df_val
