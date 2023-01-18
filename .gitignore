@@ -9,6 +9,7 @@ embedding-approach/configs
 # C extensions
 *.so
 embedding-approach/tensorboard/
+embedding-approach/database/
 reid-manta-master/data
 reid-manta-master/examples
 # Distribution / packaging

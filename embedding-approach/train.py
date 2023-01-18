@@ -36,23 +36,28 @@ if __name__ == '__main__':
     img_size: Tuple[int, int] = (config['model']['input_width'], config['model']['input_height'])
     df = load_data(config["data"]["path"])
 
-    print("Initializig Wandb")
-    wandb.init(project="triplet-approach", entity="gorilla-reid")
-    wandb.config = {
-        "learning_rate": config["train"]["learning_rate"],
-        "embedding_size":config["model"]["embedding_size"],
-        "batch_size": config["train"]["batch_size"],
-        "max_epochs": config["train"]["nb_epochs"],
-        "sampler": config["train"]["sampler"]
-    }
-
     print("Initializing Model")
     model = TripletLoss(df=df,
         embedding_size=config["model"]["embedding_size"],
         lr=config["train"]["learning_rate"],
         batch_size=config["train"]["batch_size"],
         sampler=config["train"]["sampler"],
+        augmentation=config["train"]["use_augmentation"],
         img_size=img_size)
+
+    print("Initializig Wandb")
+    wandb_config = {
+        "learning_rate": config["train"]["learning_rate"],
+        "embedding_size":config["model"]["embedding_size"],
+        "batch_size": config["train"]["batch_size"],
+        "max_epochs": config["train"]["nb_epochs"],
+        "sampler": config["train"]["sampler"],
+        "augmentation": config["train"]["use_augmentation"],
+        "test-param": 1
+    }
+    wandb.init(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
+
+    print("Initializing Trainer")
     logger = TensorBoardLogger("./tensorboard", name="reID-model")
     checkpointCallback = ModelCheckpoint(
         dirpath=config["model"]["model_save_path"],
@@ -60,9 +65,8 @@ if __name__ == '__main__':
         verbose=True,
         monitor='val_loss',
         mode='min')
-    #early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=10e-8, patience=3, verbose=False, mode="min")
-
-    print("Initializing Trainer")
+    # early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=10e-8, patience=3, verbose=False, mode="min")
+    
     trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,
         max_epochs=config["train"]["nb_epochs"],
         logger=logger,

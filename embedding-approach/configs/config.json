@@ -14,19 +14,21 @@
     "train":{
         "batch_size":           64,
         "learning_rate":        1e-5,
-        "nb_epochs":            400,
-        "sampler": "class_sampler"
+        "nb_epochs":            500,
+        "sampler": "class_sampler",
+        "use_augmentation": false
     },
 
     "predict":{
         "db_path":   "/gorilla-reidentification/embedding-approach/database",
-        "model_path": "/data/models/epoch=273-val_loss=0.00.ckpt",
-        "img_path": "/data/data/eval/US02/US02_R033_20220116_387a.png"
+        "model_path": "wandering-eon-36-epoch=396-val_loss=0.01.ckpt",
+        "img_folder": "/data/data/eval/",
+        "n_neighbors": 10
     },
 
-    "build_db": {
-        "image_folder": "",
-        "db_file": "",
-        "pretrained_model_path": ""
+    "create_db": {
+        "image_folder":"/data/data/test",
+        "db_path": "/gorilla-reidentification/embedding-approach/database",
+        "model_path": "/data/models/wandering-eon-36-epoch=396-val_loss=0.01.ckpt"
     }
 }

@@ -18,10 +18,11 @@ from utils.batch_sampler_triplet import TripletBatchSampler
 from utils.batch_sampler_ensure_positives import BatchSamplerEnsurePositives
 from utils.batch_sampler_by_class import BatchSamplerByClass
 from utils.dataset_utils import custom_train_val_split
+from utils.data_augmentation import DataAugmentation
 import wandb
 
 class TripletLoss(pl.LightningModule):
-    def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, sampler="class_sampler"):
+    def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, sampler="class_sampler", augmentation=False):
         super(TripletLoss, self).__init__()
         self.save_hyperparameters()
         self.df = df
@@ -29,6 +30,8 @@ class TripletLoss(pl.LightningModule):
         self.lr = lr
         self.img_size = img_size
         self.sampler = sampler
+        self.use_augmentation = augmentation
+        self.augment_batch = DataAugmentation()
         num_classes=self.df["labels_numeric"].nunique()
         print("Amount of individuals", num_classes)
 
@@ -64,7 +67,6 @@ class TripletLoss(pl.LightningModule):
         return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=0.0)
 
     def train_dataloader(self):
-        # ToDo: Implement data augmentation as in the paper
         if self.sampler == "class_sampler":
             return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
         elif self.sampler == "random_sampler":
@@ -77,6 +79,12 @@ class TripletLoss(pl.LightningModule):
         elif self.sampler == "random_sampler":
             return DataLoader(self.validate_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
         raise Exception("No sampler specified")
+
+    def on_after_batch_transfer(self, batch, dataloader_idx):
+        # GPU & Batched Data augmentation being applied to training
+        if self.use_augmentation and self.trainer.training:
+            batch["images"] = self.augment_batch(batch["images"])
+        return batch
 
     def training_step(self, batch: dict, _batch_idx: int):
         inputs, labels = batch['images'], batch['labels']

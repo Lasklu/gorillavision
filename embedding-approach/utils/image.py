@@ -1,5 +1,6 @@
 from torchvision.transforms import Compose, Resize, ToPILImage, ToTensor
 import torch
+
 def transform_image(img, img_size):
     transformations = Compose([
             ToPILImage(),

@@ -23,7 +23,6 @@ class BatchSamplerByClass(BatchSampler):
         self.batch_size = self.samples_per_class * self.classes_per_batch
         np.random.seed(seed)
 
-
     def __iter__(self):
         for i in range(0, self.__len__()):
             batch = [0] * self.batch_size

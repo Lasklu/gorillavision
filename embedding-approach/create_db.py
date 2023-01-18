@@ -1,3 +1,4 @@
+import argparse
 import os
 import csv
 from cv2 import imread
@@ -7,15 +8,19 @@ import json
 import pandas as pd
 import numpy as np
 from utils.image import transform_image
+
+argparser = argparse.ArgumentParser()
+argparser.add_argument('-c','--conf', help='name of the configuration file in config folder', default='config.json')
+
 def main():
-    image_folder = "/data/data/test"
-    db_file = "/gorilla-reidentification/embedding-approach/database"
-    pretrained_model_path = "/data/models/epoch=273-val_loss=0.00.ckpt"
-    config_path = "/gorilla-reidentification/embedding-approach/configs/config.json"
+    args = argparser.parse_args()
+    config_path = os.path.join("./configs", args.conf)
     with open(config_path) as config_buffer:    
         config = json.loads(config_buffer.read())
+    image_folder = config["create_db"]["image_folder"]
+    db_path = config["create_db"]["db_path"]
 
-    model = TripletLoss.load_from_checkpoint(pretrained_model_path)
+    model = TripletLoss.load_from_checkpoint(config["create_db"]["model_path"])
     labels = []
     embeddings = []
     for folder in os.listdir(image_folder):
@@ -30,8 +35,8 @@ def main():
                 img = transform_image(imread(img_path), (config['model']['input_width'], config['model']['input_height']))
                 labels.append(label[:4])
                 embeddings.append(model(img).numpy()[0])
-    np.save(os.path.join(config["predict"]["db_path"], "database/labels.npy"), np.array(labels))
-    np.save(os.path.join(config["predict"]["db_path"], "database/embeddings.npy"), np.array(embeddings))
+    np.save(os.path.join(db_path, "labels.npy"), np.array(labels))
+    np.save(os.path.join(db_path, "embeddings.npy"), np.array(embeddings))
     
 
 if __name__ == '__main__':

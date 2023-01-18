@@ -6,3 +6,4 @@ pytorch_lightning
 scikit-learn
 torchmetrics
 wandb
+kornia
