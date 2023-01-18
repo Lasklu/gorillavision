@@ -12,6 +12,7 @@ from model.triplet import TripletLoss
 from utils.dataset_utils import load_data
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.loggers import WandbLogger
 from typing import Tuple
 
 ###############################
@@ -35,7 +36,6 @@ if __name__ == '__main__':
     print("Loading Dataset")
     img_size: Tuple[int, int] = (config['model']['input_width'], config['model']['input_height'])
     df = load_data(config["data"]["path"])
-
     print("Initializing Model")
     model = TripletLoss(df=df,
         embedding_size=config["model"]["embedding_size"],
@@ -55,10 +55,12 @@ if __name__ == '__main__':
         "augmentation": config["train"]["use_augmentation"],
         "test-param": 1
     }
-    wandb.init(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
+   # wandb.init(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
+    wandb_logger = WandbLogger(project="triplet-approach", entity="gorilla-reid", config=wandb_config,log_model="all")
+    wandb_logger.watch(model, log="all")
+
 
     print("Initializing Trainer")
-    logger = TensorBoardLogger("./tensorboard", name="reID-model")
     checkpointCallback = ModelCheckpoint(
         dirpath=config["model"]["model_save_path"],
         filename=f'{wandb.run.name}',
@@ -69,7 +71,7 @@ if __name__ == '__main__':
     
     trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,
         max_epochs=config["train"]["nb_epochs"],
-        logger=logger,
+        logger=wandb_logger,
         callbacks=[checkpointCallback])
 
     print("Starting Training")
