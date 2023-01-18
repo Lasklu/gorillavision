@@ -61,7 +61,7 @@ if __name__ == '__main__':
     logger = TensorBoardLogger("./tensorboard", name="reID-model")
     checkpointCallback = ModelCheckpoint(
         dirpath=config["model"]["model_save_path"],
-        filename=wandb.run.name + '-{epoch}-{val_loss:.2f}',
+        filename=f'{wandb.run.name}',
         verbose=True,
         monitor='val_loss',
         mode='min')
