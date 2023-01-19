@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn import neighbors
+from sklearn.metrics import accuracy_score,top_k_accuracy_score
 from model.triplet import TripletLoss
 import torch
 from torchvision.transforms import Compose, Resize, ToPILImage, ToTensor
@@ -42,7 +43,7 @@ def main():
     
     # fit kNN classifier model on db
     knn_classifier = neighbors.KNeighborsClassifier()
-    nn_classifier = neighbors.N
+    #nn_classifier = neighbors.N
     print("training")
     knn_classifier.fit(embeddings, labels)
     test_labels = []
@@ -75,6 +76,8 @@ def main():
     total_predictions = []
 
     # predict embedding for every image in image_folder specified in config
+    predicted_embeddings = []
+    test_labels = []
     for folder in os.listdir(config["predict"]["img_folder"]):
         print(folder)
         if os.path.isdir(os.path.join(config["predict"]["img_folder"], folder)):
@@ -85,13 +88,23 @@ def main():
                     continue
                 img = transform_image(imread(os.path.join(config["predict"]["img_folder"], folder, img_file)), (config['model']['input_width'], config['model']['input_height']))
                 with torch.no_grad():
-                    predicted_embedding = model(img)
-                    predicted_label = nn_classifier.predict(predicted_embedding.numpy())
-                    neighbour_prediction = nn_classifier.kneighbors(predicted_embedding.numpy())
-                    print("prediction", neighbour_prediction)
-                    print("predicted label", predicted_label)
-                    print("real labek", individual_name)
-                    total_predictions.append({"prediction": neighbour_prediction, "predicted__label": predicted_label, "real_label": individual_name})
+                    predicted_embeddings.append(model(img).numpy())
+                    test_labels.append(individual_name)
+    predicted_embeddings = np.squeeze(predicted_embeddings)
+    predicted_labels = knn_classifier.predict(predicted_embeddings)
+    neighbour_predictions = knn_classifier.kneighbors(predicted_embeddings)[1]
+    def map_labels(n):
+        return labels[n]
+    neighbour_predictions_labels=[list(map(map_labels, array)) for array in neighbour_predictions]
+    print(neighbour_predictions_labels)
+    print("kAccuracy", top_k_accuracy_score(test_labels, neighbour_predictions_labels))
+    print("score1", knn_classifier.score(predicted_embeddings, labels))
+    print("score2", accuracy_score(test_labels, predicted_labels))
+    
+    #print("prediction", neighbour_predictions)
+    #print("predicted label", predicted_labels)
+    #print("real labek", labels)
+    total_predictions.append({"prediction": neighbour_prediction, "predicted__label": predicted_label, "real_label": individual_name})
     
     #metrics = compute_prediction_metrics(total_predictions)
     #print(metrics)

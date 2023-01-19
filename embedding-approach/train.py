@@ -63,7 +63,7 @@ if __name__ == '__main__':
     print("Initializing Trainer")
     checkpointCallback = ModelCheckpoint(
         dirpath=config["model"]["model_save_path"],
-        filename=f'{wandb.run.name}',
+        filename=str(wandb.run.name)+'-{epoch}-{val_loss:.2f}',
         verbose=True,
         monitor='val_loss',
         mode='min')
