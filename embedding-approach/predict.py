@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from sklearn import neighbors
 from sklearn.metrics import accuracy_score,top_k_accuracy_score
+from utils.metrics import compute_prediction_metrics
 from model.triplet import TripletLoss
 import torch
 from torchvision.transforms import Compose, Resize, ToPILImage, ToTensor
@@ -97,17 +98,17 @@ def main():
         return labels[n]
     neighbour_predictions_labels=[list(map(map_labels, array)) for array in neighbour_predictions]
     print(neighbour_predictions_labels)
-    print("kAccuracy", top_k_accuracy_score(test_labels, neighbour_predictions_labels))
-    print("score1", knn_classifier.score(predicted_embeddings, labels))
-    print("score2", accuracy_score(test_labels, predicted_labels))
+    #print("kAccuracy", top_k_accuracy_score(test_labels, neighbour_predictions_labels))
+    print("score1", knn_classifier.score(predicted_embeddings, test_labels))
+    #print("score2", accuracy_score(test_labels, predicted_labels))
     
     #print("prediction", neighbour_predictions)
     #print("predicted label", predicted_labels)
     #print("real labek", labels)
-    total_predictions.append({"prediction": neighbour_prediction, "predicted__label": predicted_label, "real_label": individual_name})
+    #total_predictions.append({"prediction": neighbour_prediction, "predicted__label": predicted_label, "real_label": individual_name})
     
-    #metrics = compute_prediction_metrics(total_predictions)
-    #print(metrics)
+    metrics = compute_prediction_metrics(test_labels, predicted_labels)
+    print(metrics)
 
 
 if __name__ == "__main__":
