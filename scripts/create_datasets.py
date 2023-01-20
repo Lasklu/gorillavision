@@ -2,20 +2,22 @@ import os
 import shutil
 import random
 #This scripts takes defined datasets and splits them into train and test sets.
-
-output_path = "/Users/lukaslaskowski/Documents/HPI/9.Semester.nosync/Masterprojekt/eval/test"
+base_path = "/scratch1/wildlife_conservation/data/gorillas_dante/face_cropped"
+output_path = os.path.join(base_path, 'eval_datasets')
+bristol_dataset = os.path.join(base_path, 'grouped_by_id_only_bristol')
+cxl_dataset = os.path.join(base_path, 'grouped_by_id_only_dante')
 datasets = [
 	{
 		"name": '10elementsperfolder_trainb1b2b3b4b5',
 		'datasets': [
-      	{'dataset_path': '/Users/lukaslaskowski/Documents/HPI/9.Semester.nosync/Masterprojekt/eval/test_folder/bristol',
+      	{'dataset_path': bristol_dataset,
 		'elements_per_id': 'all',
 		'train_test_split': {
 			'train_classes': ['b1', 'b2', 'b3', 'b4', 'b5'],
 			'percentage': 0.8
 		}},
         {
-        'dataset_path': '/Users/lukaslaskowski/Documents/HPI/9.Semester.nosync/Masterprojekt/eval/test_folder/cxl',
+        'dataset_path': cxl_dataset,
 		'elements_per_id': 'all',
 		'train_test_split': {
 			'train_classes': ['folder1', 'folder2', 'folder3', 'folder4', 'folder5'],
