@@ -6,21 +6,74 @@ base_path = "/scratch1/wildlife_conservation/data/gorillas_dante/face_cropped"
 output_path = os.path.join(base_path, 'eval_datasets')
 bristol_dataset = os.path.join(base_path, 'grouped_by_id_only_bristol')
 cxl_dataset = os.path.join(base_path, 'grouped_by_id_only_dante')
+
+classes_bristol = os.listdir(bristol_dataset)
+random.shuffle(classes_bristol)
+train_classes_bristol = classes_bristol[:5]
+
+classes_cxl = os.listdir(cxl_dataset)
+train_classes_cxl = random.sample(classes_cxl, round(len(classes_cxl) * 0.9))
+
 datasets = [
+	{
+		"name": 'onlybristol_10perId_train_all_0.75',
+		'datasets': [
+      	{'dataset_path': bristol_dataset,
+		'elements_per_id': 10,
+		'train_test_split': {
+			'train_classes': 'all',
+			'percentage': 0.75
+		}}]
+	},
+	{
+			"name": 'onlybristol_20perId_train_all_0.75',
+			'datasets': [
+			{'dataset_path': bristol_dataset,
+			'elements_per_id': 20,
+			'train_test_split': {
+				'train_classes': 'all',
+				'percentage': 0.75
+			}}]
+		},
+	{
+		"name": 'onlybristol_50perId_train_all_0.75',
+		'datasets': [
+      	{'dataset_path': bristol_dataset,
+		'elements_per_id': 50,
+		'train_test_split': {
+			'train_classes': 'all',
+			'percentage': 0.75
+		}}]
+	},
+	{
+		"name": 'onlybristol_AllperId_train_all_0.75',
+		'datasets': [
+      	{'dataset_path': bristol_dataset,
+		'elements_per_id': 'all',
+		'train_test_split': {
+			'train_classes': 'all',
+			'percentage': 0.75
+		}}]
+	},
+ 
+ 
+ 
+ 
+ 
 	{
 		"name": '10elementsperfolder_trainb1b2b3b4b5',
 		'datasets': [
       	{'dataset_path': bristol_dataset,
 		'elements_per_id': 'all',
 		'train_test_split': {
-			'train_classes': ['b1', 'b2', 'b3', 'b4', 'b5'],
+			'train_classes': train_classes_bristol,
 			'percentage': 0.8
 		}},
         {
         'dataset_path': cxl_dataset,
 		'elements_per_id': 'all',
 		'train_test_split': {
-			'train_classes': ['folder1', 'folder2', 'folder3', 'folder4', 'folder5'],
+			'train_classes': train_classes_cxl,
 			'percentage': 0.5
 		}
 		}]
@@ -43,9 +96,7 @@ def main():
 		make_folder(f"{identifier}/test", output_path)
 		for sub_dataset in dataset['datasets']:
 			for id in os.listdir(sub_dataset['dataset_path']):
-				if id in sub_dataset['train_test_split']['train_classes']:
-					print(id)
-					print(os.listdir(f"{sub_dataset['dataset_path']}/{id}"))
+				if sub_dataset['train_test_split']['train_classes'] == 'all' or id in sub_dataset['train_test_split']['train_classes']:
 					files = os.listdir(f"{sub_dataset['dataset_path']}/{id}")
 					random.shuffle(files)
 					print(files)
