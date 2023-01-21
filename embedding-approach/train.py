@@ -15,44 +15,31 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.loggers import WandbLogger
 from typing import Tuple
 
-###############################
-#  Setup Argparse
-###############################
+
 
 argparser = argparse.ArgumentParser(description='Train and validate a model on any dataset')
 argparser.add_argument('-c','--conf', help='name of the configuration file in config folder', default='config.json')
 
-###############################
-#  Run application
-###############################
-
-if __name__ == '__main__':
-    print("Loading config...")
-    conf_name = argparser.parse_args().conf
-    config_path = os.path.join("./configs", conf_name)
-    with open(config_path) as config_buffer:    
-        config = json.loads(config_buffer.read())
-
+def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation, model_save_path):
     print("Loading Dataset")
-    img_size: Tuple[int, int] = (config['model']['input_width'], config['model']['input_height'])
-    df = load_data(config["data"]["path"])
+    img_size: Tuple[int, int] = (input_width, input_height)
     print("Initializing Model")
     model = TripletLoss(df=df,
-        embedding_size=config["model"]["embedding_size"],
-        lr=config["train"]["learning_rate"],
-        batch_size=config["train"]["batch_size"],
-        sampler=config["train"]["sampler"],
-        augmentation=config["train"]["use_augmentation"],
+        embedding_size=embedding_size,
+        lr=lr,
+        batch_size=batch_size,
+        sampler=sampler,
+        augmentation=use_augmentation,
         img_size=img_size)
 
     print("Initializig Wandb")
     wandb_config = {
-        "learning_rate": config["train"]["learning_rate"],
-        "embedding_size":config["model"]["embedding_size"],
-        "batch_size": config["train"]["batch_size"],
-        "max_epochs": config["train"]["nb_epochs"],
-        "sampler": config["train"]["sampler"],
-        "augmentation": config["train"]["use_augmentation"],
+        "learning_rate": lr,
+        "embedding_size":embedding_size,
+        "batch_size": batch_size,
+        "max_epochs": nb_epochs,
+        "sampler": sampler,
+        "augmentation": use_augmentation,
         "test-param": 1
     }
    # wandb.init(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
@@ -62,7 +49,7 @@ if __name__ == '__main__':
 
     print("Initializing Trainer")
     checkpointCallback = ModelCheckpoint(
-        dirpath=config["model"]["model_save_path"],
+        dirpath=model_save_path,
         filename=str(wandb.run.name)+'-{epoch}-{val_loss:.2f}',
         verbose=True,
         monitor='val_loss',
@@ -70,10 +57,30 @@ if __name__ == '__main__':
     # early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=10e-8, patience=3, verbose=False, mode="min")
     
     trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,
-        max_epochs=config["train"]["nb_epochs"],
+        max_epochs=nb_epochs,
         logger=wandb_logger,
         callbacks=[checkpointCallback])
 
     print("Starting Training")
     trainer.fit(model)
+
+if __name__ == '__main__':
+    print("Loading config...")
+    conf_name = argparser.parse_args().conf
+    config_path = os.path.join("./configs", conf_name)
+    with open(config_path) as config_buffer:    
+        config = json.loads(config_buffer.read())
+    
+    df = load_data(config["data"]["path"])
+    lr= config["train"]["learning_rate"]
+    batch_size= config["train"]["batch_size"]
+    input_width= config['model']['input_width']
+    input_height= config['model']['input_height']
+    embedding_size= config["model"]["embedding_size"]
+    nb_epochs= config["train"]["nb_epochs"]
+    sampler= config["train"]["sampler"]
+    use_augmentation=config["train"]["use_augmentation"]
+    model_save_path=config["model"]["model_save_path"]
+    train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,model_save_path)
+
     
