@@ -15,8 +15,13 @@
         "batch_size":           64,
         "learning_rate":        1e-5,
         "nb_epochs":            500,
-        "sampler": "class_sampler",
-        "use_augmentation": false
+        "sampler": "random_sampler",
+        "use_augmentation": false,
+        "augment_config": {
+            "use_erase": false,
+            "use_intensity": false,
+            "use_geometric": true
+        }
     },
 
     "predict":{

@@ -29,7 +29,8 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         lr=lr,
         batch_size=batch_size,
         sampler=sampler,
-        augmentation=use_augmentation,
+        use_augmentation=use_augmentation,
+        augment_config=augment_config,
         img_size=img_size)
 
     print("Initializig Wandb")
@@ -40,7 +41,7 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         "max_epochs": nb_epochs,
         "sampler": sampler,
         "augmentation": use_augmentation,
-        "test-param": 1
+        "augment_config": augment_config,
     }
    # wandb.init(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
     wandb_logger = WandbLogger(project="triplet-approach", entity="gorilla-reid", config=wandb_config,log_model="all")
@@ -56,7 +57,8 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         mode='min')
     # early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=10e-8, patience=3, verbose=False, mode="min")
     
-    trainer = pl.Trainer(gpus=1 if torch.cuda.is_available() else 0,
+    trainer = pl.Trainer(accelerator='gpu',
+        devices=1,
         max_epochs=nb_epochs,
         logger=wandb_logger,
         callbacks=[checkpointCallback])
@@ -80,6 +82,7 @@ if __name__ == '__main__':
     nb_epochs= config["train"]["nb_epochs"]
     sampler= config["train"]["sampler"]
     use_augmentation=config["train"]["use_augmentation"]
+    augment_config=config["train"]["augment_config"]
     model_save_path=config["model"]["model_save_path"]
     train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,model_save_path)
 

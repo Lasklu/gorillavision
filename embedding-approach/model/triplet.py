@@ -22,7 +22,8 @@ from utils.data_augmentation import DataAugmentation
 import wandb
 
 class TripletLoss(pl.LightningModule):
-    def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001, sampler="class_sampler", augmentation=False):
+    def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001,
+                 sampler="class_sampler", use_augmentation=False, augment_config={"use_erase": False, "use_intensity": False, "use_geometric": True}):
         super(TripletLoss, self).__init__()
         self.save_hyperparameters()
         self.df = df
@@ -30,8 +31,8 @@ class TripletLoss(pl.LightningModule):
         self.lr = lr
         self.img_size = img_size
         self.sampler = sampler
-        self.use_augmentation = augmentation
-        self.augment_batch = DataAugmentation()
+        self.use_augmentation = use_augmentation
+        self.augment_batch = DataAugmentation(augment_config)
         num_classes=self.df["labels_numeric"].nunique()
         print("Amount of individuals", num_classes)
 
@@ -44,6 +45,7 @@ class TripletLoss(pl.LightningModule):
         self.linear = Linear(2048*5*5, embedding_size)
     
     def forward(self, x: Tensor):
+        print("in forward")
         x = self.backend(x)
         if isinstance(x, InceptionOutputs):
             x = x.logits
@@ -67,26 +69,30 @@ class TripletLoss(pl.LightningModule):
         return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=0.0)
 
     def train_dataloader(self):
+        print("in train dataloader")
         if self.sampler == "class_sampler":
-            return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
+            return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=16)
         elif self.sampler == "random_sampler":
             return DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
         raise Exception("No sampler specified")
 
     def val_dataloader(self):
+        print("in val dataloader")
         if self.sampler == "class_sampler":
-            return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=8)
+            return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=16)
         elif self.sampler == "random_sampler":
             return DataLoader(self.validate_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
         raise Exception("No sampler specified")
 
     def on_after_batch_transfer(self, batch, dataloader_idx):
+        print("in after batch transfer")
         # GPU & Batched Data augmentation being applied to training
         if self.use_augmentation and self.trainer.training:
             batch["images"] = self.augment_batch(batch["images"])
         return batch
 
     def training_step(self, batch: dict, _batch_idx: int):
+        print("in train step")
         inputs, labels = batch['images'], batch['labels']
         labels = labels.flatten()
         outputs = self.forward(inputs)
