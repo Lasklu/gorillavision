@@ -1,3 +1,5 @@
+#This code has been copied from pytorch but was slightly modified to satisy our needs   
+
 import warnings
 from collections import namedtuple
 from functools import partial

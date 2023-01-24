@@ -18,8 +18,7 @@ import os
 import json
 from utils.image import transform_image
 
-def predict(model_path, image_folder, labels, embeddings):
-    model = TripletLoss.load_from_checkpoint(model_path)
+def score(model, image_folder, labels, embeddings, input_width, input_height):
     knn_classifier = neighbors.KNeighborsClassifier()
     #nn_classifier = neighbors.N
     print("training")
@@ -63,19 +62,21 @@ def predict(model_path, image_folder, labels, embeddings):
                 label, ext = os.path.splitext(img_file)
                 if ext not in [".png", ".jpg", ".jpeg"]:
                     continue
-                img = transform_image(imread(os.path.join(image_folder, folder, img_file)), (config['model']['input_width'], config['model']['input_height']))
+                img = transform_image(imread(os.path.join(image_folder, folder, img_file)), (input_width, input_height))
                 with torch.no_grad():
                     predicted_embeddings.append(model(img).numpy())
                     test_labels.append(individual_name)
     predicted_embeddings = np.squeeze(predicted_embeddings)
     predicted_labels = knn_classifier.predict(predicted_embeddings)
     neighbour_predictions = knn_classifier.kneighbors(predicted_embeddings)[1]
+    print("testlabels", test_labels)
+    print("predicted labels", predicted_labels)
     def map_labels(n):
         return labels[n]
     neighbour_predictions_labels=[list(map(map_labels, array)) for array in neighbour_predictions]
-    print(neighbour_predictions_labels)
+    #print(neighbour_predictions_labels)
     metrics = compute_prediction_metrics(test_labels, predicted_labels)
-    print(metrics)
+    return metrics
 
 
 if __name__ == "__main__":
@@ -90,4 +91,4 @@ if __name__ == "__main__":
     image_folders = config["predict"]["img_folder"]
     labels = np.load(os.path.join(config["predict"]["db_path"],'labels.npy'))
     embeddings = np.load(os.path.join(config["predict"]["db_path"],'embeddings.npy'))
-    predict(model_path, image_folder labels, embeddings)
+    predict(model_path, image_folders, labels, embeddings)

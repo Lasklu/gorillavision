@@ -57,12 +57,16 @@ class TripletLoss(pl.LightningModule):
 
     def prepare_data(self):
         print("Preparing Data...")
-        train, validate = custom_train_val_split(self.df, test_size=0.3, random_state=0, label_col_name="labels_numeric")
+        #train, validate = custom_train_val_split(self.df, test_size=0.3, random_state=0, label_col_name="labels_numeric")
+        train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
         self.train_ds = IndividualsDS(train, self.img_size)
         self.validate_ds = IndividualsDS(validate, self.img_size)
-        if self.sampler == "class_sampler":
+        if self.sampler == "class_sampler": 
             self.batch_sampler_train = BatchSamplerByClass(ds=self.train_ds)
             self.batch_sampler_val = BatchSamplerByClass(ds=self.validate_ds)
+        elif self.sampler == "ensure_positive":
+            self.batch_sampler_train = BatchSamplerEnsurePositives(ds=self.train_ds, batch_size=self.batch_size)
+            self.batch_sampler_val = BatchSamplerEnsurePositives(ds=self.validate_ds, batch_size=self.batch_size)
         print("Preparing Data completed.")
 
     def configure_optimizers(self):
@@ -74,6 +78,8 @@ class TripletLoss(pl.LightningModule):
             return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=16)
         elif self.sampler == "random_sampler":
             return DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
+        elif self.sampler == "ensure_positive":
+            return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
         raise Exception("No sampler specified")
 
     def val_dataloader(self):
@@ -82,6 +88,8 @@ class TripletLoss(pl.LightningModule):
             return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=16)
         elif self.sampler == "random_sampler":
             return DataLoader(self.validate_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
+        elif self.sampler == "ensure_positive":
+            return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
         raise Exception("No sampler specified")
 
     def on_after_batch_transfer(self, batch, dataloader_idx):
@@ -97,6 +105,7 @@ class TripletLoss(pl.LightningModule):
         labels = labels.flatten()
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
+        #self.log("train/loss", loss)
         wandb.log({'train_loss': loss})
         return loss
 

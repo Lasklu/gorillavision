@@ -9,9 +9,9 @@ def top_k_accuracy(predictions, x):
 def compute_prediction_metrics(y_true, y_pred):
     #f"top-{str(x)}-accuracy": top_x_accuracy(predictions, x),
     #    "mAP": mean_average_precision(predctions),
-    print("Recall", recall_score(y_true, y_pred,average='micro'))
-    print("Precision", recall_score(y_true, y_pred,average='micro'))
-    print("F1Score", f1_score(y_true, y_pred, average='micro'))
+    print("Recall", recall_score(y_true, y_pred,average='weighted'))
+    print("Precision", recall_score(y_true, y_pred,average='weighted'))
+    print("F1Score", f1_score(y_true, y_pred, average='weighted'))
     print("Accuracy", accuracy_score(y_true, y_pred))
     print("Confusion,matrix", confusion_matrix(y_true, y_pred))
     return {   
@@ -19,5 +19,8 @@ def compute_prediction_metrics(y_true, y_pred):
         "precision": precision_score(y_true, y_pred,average='micro'),
         "f1Score": f1_score(y_true, y_pred, average='micro'),
         "accuracy": accuracy_score(y_true, y_pred),
-        "consusion_matrix": confusion_matrix(y_true, y_pred)
+        "consusion_matrix": confusion_matrix(y_true, y_pred),
+        "recall_per_class": recall_score(y_true, y_pred,average=None),
+        "precision_per_class": precision_score(y_true, y_pred,average=None),
+        "f1Score_per_class": f1_score(y_true, y_pred, average=None),
     }

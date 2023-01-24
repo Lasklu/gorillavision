@@ -1,21 +1,22 @@
 {
+    "main": {
+        "path": "/data/eval_datasets/bristol"
+    },
     "data": {
         "path": "/data/data/train",
         "split_seed": 123
     },
-
     "model": {
         "input_width": 120,
         "input_height": 150,
         "embedding_size": 256,
-        "model_save_path": "/data/models"
+        "model_save_path": "/models"
     },
-
-    "train":{
-        "batch_size":           32,
-        "learning_rate":        1e-5,
-        "nb_epochs":            500,
-        "sampler": "class_sampler",
+    "train": {
+        "batch_size": 32,
+        "learning_rate": 1e-5,
+        "nb_epochs": 500,
+        "sampler": "ensure_positive",
         "use_augmentation": false,
         "augment_config": {
             "use_erase": false,
@@ -23,16 +24,14 @@
             "use_geometric": true
         }
     },
-
-    "predict":{
-        "db_path":   "/gorilla-reidentification/embedding-approach/database",
-        "model_path": "wandering-eon-36-epoch=396-val_loss=0.01.ckpt",
-        "img_folder": "/data/data/eval/",
-        "n_neighbors": 10
+    "predict": {
+        "db_path": "/gorilla-reidentification/embedding-approach/database/bristol",
+        "model_path": "/gorilla-reidentification/embedding-approach/models_saved/run1/firm-disco-44-epoch=283-val_loss=0.00.ckpt",
+        "img_folder": "/data/train_test/test/",
+        "n_neighbors": 5
     },
-
     "create_db": {
-        "image_folder":"/data/data/test",
+        "image_folder": "/data/data/test",
         "db_path": "/gorilla-reidentification/embedding-approach/database",
         "model_path": "/data/models/wandering-eon-36-epoch=396-val_loss=0.01.ckpt"
     }
