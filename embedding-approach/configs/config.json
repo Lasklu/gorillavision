@@ -13,9 +13,9 @@
         "model_save_path": "/models"
     },
     "train": {
-        "batch_size": 64,
+        "batch_size": 160,
         "learning_rate": 1e-5,
-        "nb_epochs": 150,
+        "nb_epochs": 100,
         "sampler": "ensure_positive",
         "use_augmentation": false,
         "augment_config": {
