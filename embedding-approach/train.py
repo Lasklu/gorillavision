@@ -15,9 +15,12 @@ from typing import Tuple
 
 
 
-def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation, model_save_path):
+def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,augment_config,  model_save_path, dataset_statistics):
     logger.info("Initializing Model")
     img_size: Tuple[int, int] = (input_width, input_height)
+    if (not os.path.exists(model_save_path)):
+        logger.warning(f"Path {model_save_path} does not exist. Creating it...")
+        os.mkdir(model_save_path)
     model = TripletLoss(df=df,
         embedding_size=embedding_size,
         lr=lr,
@@ -36,6 +39,7 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         "sampler": sampler,
         "augmentation": use_augmentation,
         "augment_config": augment_config,
+        "dataset_statistics": dataset_statistics
     }
    # wandb.init(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
     wandb_logger = WandbLogger(project="triplet-approach", entity="gorilla-reid", config=wandb_config)

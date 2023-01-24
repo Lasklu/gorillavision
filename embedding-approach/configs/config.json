@@ -7,15 +7,15 @@
         "split_seed": 123
     },
     "model": {
-        "input_width": 120,
-        "input_height": 150,
+        "input_width": 300,
+        "input_height": 300,
         "embedding_size": 256,
         "model_save_path": "/models"
     },
     "train": {
-        "batch_size": 32,
+        "batch_size": 64,
         "learning_rate": 1e-5,
-        "nb_epochs": 500,
+        "nb_epochs": 150,
         "sampler": "ensure_positive",
         "use_augmentation": false,
         "augment_config": {

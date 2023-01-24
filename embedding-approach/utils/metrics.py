@@ -6,7 +6,7 @@ def is_in_top_x(neighbour_predictions, real_label, x):
 def top_k_accuracy(predictions, x):
     pass
 
-def compute_prediction_metrics(y_true, y_pred):
+def compute_prediction_metrics(y_true, y_pred)-> dict:
     #f"top-{str(x)}-accuracy": top_x_accuracy(predictions, x),
     #    "mAP": mean_average_precision(predctions),
     print("Recall", recall_score(y_true, y_pred,average='weighted'))

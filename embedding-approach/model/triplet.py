@@ -45,7 +45,6 @@ class TripletLoss(pl.LightningModule):
         self.linear = Linear(2048*5*5, embedding_size)
     
     def forward(self, x: Tensor):
-        print("in forward")
         x = self.backend(x)
         if isinstance(x, InceptionOutputs):
             x = x.logits
@@ -73,7 +72,6 @@ class TripletLoss(pl.LightningModule):
         return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=0.0)
 
     def train_dataloader(self):
-        print("in train dataloader")
         if self.sampler == "class_sampler":
             return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=16)
         elif self.sampler == "random_sampler":
@@ -83,7 +81,6 @@ class TripletLoss(pl.LightningModule):
         raise Exception("No sampler specified")
 
     def val_dataloader(self):
-        print("in val dataloader")
         if self.sampler == "class_sampler":
             return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=16)
         elif self.sampler == "random_sampler":
@@ -93,14 +90,12 @@ class TripletLoss(pl.LightningModule):
         raise Exception("No sampler specified")
 
     def on_after_batch_transfer(self, batch, dataloader_idx):
-        print("in after batch transfer")
         # GPU & Batched Data augmentation being applied to training
         if self.use_augmentation and self.trainer.training:
             batch["images"] = self.augment_batch(batch["images"])
         return batch
 
     def training_step(self, batch: dict, _batch_idx: int):
-        print("in train step")
         inputs, labels = batch['images'], batch['labels']
         labels = labels.flatten()
         outputs = self.forward(inputs)
