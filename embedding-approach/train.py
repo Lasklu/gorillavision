@@ -15,7 +15,8 @@ from typing import Tuple
 
 
 
-def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,augment_config,  model_save_path, dataset_statistics):
+def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,augment_config,
+          model_save_path, dataset_statistics, train_val_split_overlapping, class_sampler_config):
     logger.info("Initializing Model")
     img_size: Tuple[int, int] = (input_width, input_height)
     if (not os.path.exists(model_save_path)):
@@ -28,6 +29,8 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         sampler=sampler,
         use_augmentation=use_augmentation,
         augment_config=augment_config,
+        train_val_split_overlapping=train_val_split_overlapping,
+        class_sampler_config=class_sampler_config,
         img_size=img_size)
 
     logger.info("Initializing Wandb")
@@ -39,7 +42,9 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         "sampler": sampler,
         "augmentation": use_augmentation,
         "augment_config": augment_config,
-        "dataset_statistics": dataset_statistics
+        "dataset_statistics": dataset_statistics,
+        "class_sampler_config": class_sampler_config,
+        "train_val_split_overlapping": train_val_split_overlapping
     }
    # wandb.init(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
     wandb_logger = WandbLogger(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
@@ -53,13 +58,13 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         verbose=True,
         monitor='val_loss',
         mode='min')
-    early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=10e-8, patience=5, verbose=False, mode="min")
+    # early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=10e-8, patience=5, verbose=False, mode="min")
     
     trainer = pl.Trainer(accelerator='gpu',
         devices=1,
         max_epochs=nb_epochs,
         logger=wandb_logger,
-        callbacks=[checkpointCallback, early_stop_callback])
+        callbacks=[checkpointCallback])
 
     logger.info("Starting Training")
     trainer.fit(model)
@@ -85,16 +90,19 @@ if __name__ == '__main__':
         config = json.loads(config_buffer.read())
     
     df = load_data(config["data"]["path"])
-    lr= config["train"]["learning_rate"]
-    batch_size= config["train"]["batch_size"]
-    input_width= config['model']['input_width']
-    input_height= config['model']['input_height']
-    embedding_size= config["model"]["embedding_size"]
-    nb_epochs= config["train"]["nb_epochs"]
-    sampler= config["train"]["sampler"]
-    use_augmentation=config["train"]["use_augmentation"]
-    augment_config=config["train"]["augment_config"]
-    model_save_path=config["model"]["model_save_path"]
-    train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,model_save_path)
+    lr = config["train"]["learning_rate"]
+    batch_size = config["train"]["batch_size"]
+    input_width = config['model']['input_width']
+    input_height = config['model']['input_height']
+    embedding_size = config["model"]["embedding_size"]
+    nb_epochs = config["train"]["nb_epochs"]
+    sampler = config["train"]["sampler"]
+    use_augmentation = config["train"]["use_augmentation"]
+    augment_config = config["train"]["augment_config"]
+    model_save_path = config["model"]["model_save_path"]
+    train_val_split_overlapping = config["train"]["train_val_split_overlapping"]
+    class_sampler_config = config["train"]["class_sampler_config"]
+    train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,
+          model_save_path, train_val_split_overlapping, class_sampler_config)
 
     

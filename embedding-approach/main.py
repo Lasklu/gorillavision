@@ -33,6 +33,8 @@ def main(dataset_paths, config):
                     use_augmentation=config["train"]["use_augmentation"],
                     augment_config=config["train"]["augment_config"],
                     model_save_path=f'{config["model"]["model_save_path"]}/{dataset_path.split("/")[-1]}',
+                    train_val_split_overlapping=config["train"]["train_val_split_overlapping"],
+                    class_sampler_config = config["train"]["class_sampler_config"],
                     dataset_statistics=dataset_statistics
             )
             model = TripletLoss.load_from_checkpoint(model_path)

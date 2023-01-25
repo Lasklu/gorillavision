@@ -24,7 +24,8 @@ import wandb
 class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001,
                  sampler="class_sampler", use_augmentation=False, train_val_split_overlapping=False,
-                 augment_config={"use_erase": False, "use_intensity": False, "use_geometric": True}):
+                 augment_config={"use_erase": False, "use_intensity": False, "use_geometric": True},
+                 class_sampler_config={}):
         super(TripletLoss, self).__init__()
         self.save_hyperparameters()
         self.df = df
@@ -32,6 +33,7 @@ class TripletLoss(pl.LightningModule):
         self.lr = lr
         self.img_size = img_size
         self.sampler = sampler
+        self.class_sampler_config = class_sampler_config
         self.use_augmentation = use_augmentation
         self.augment_batch = DataAugmentation(augment_config)
         self.train_val_split_overlapping = train_val_split_overlapping
@@ -61,12 +63,14 @@ class TripletLoss(pl.LightningModule):
         if self.train_val_split_overlapping:
             train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
         else:
-            train, validate = custom_train_val_split(self.df, test_size=0.3, random_state=0, label_col_name="labels_numeric")
+            train, validate = custom_train_val_split(self.df, test_size=0.4, random_state=0, label_col_name="labels_numeric")
         self.train_ds = IndividualsDS(train, self.img_size)
         self.validate_ds = IndividualsDS(validate, self.img_size)
-        if self.sampler == "class_sampler": 
-            self.batch_sampler_train = BatchSamplerByClass(ds=self.train_ds)
-            self.batch_sampler_val = BatchSamplerByClass(ds=self.validate_ds)
+        if self.sampler == "class_sampler":
+            classes_per_batch = self.class_sampler_config["classes_per_batch"]
+            samples_per_class = self.class_sampler_config["samples_per_class"]
+            self.batch_sampler_train = BatchSamplerByClass(ds=self.train_ds, classes_per_batch=classes_per_batch, samples_per_class=samples_per_class)
+            self.batch_sampler_val = BatchSamplerByClass(ds=self.validate_ds, classes_per_batch=classes_per_batch, samples_per_class=samples_per_class)
         elif self.sampler == "ensure_positive":
             self.batch_sampler_train = BatchSamplerEnsurePositives(ds=self.train_ds, batch_size=self.batch_size)
             self.batch_sampler_val = BatchSamplerEnsurePositives(ds=self.validate_ds, batch_size=self.batch_size)
@@ -77,7 +81,7 @@ class TripletLoss(pl.LightningModule):
 
     def train_dataloader(self):
         if self.sampler == "class_sampler":
-            return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=16)
+            return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
         elif self.sampler == "random_sampler":
             return DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
         elif self.sampler == "ensure_positive":
@@ -86,7 +90,7 @@ class TripletLoss(pl.LightningModule):
 
     def val_dataloader(self):
         if self.sampler == "class_sampler":
-            return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=16)
+            return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=8)
         elif self.sampler == "random_sampler":
             return DataLoader(self.validate_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
         elif self.sampler == "ensure_positive":

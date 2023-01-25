@@ -3,13 +3,13 @@ import numpy as np
 from torch.utils.data.sampler import BatchSampler
 from torch.utils.data import DataLoader
 from numpy.random import shuffle, choice
+import wandb
 
 class BatchSamplerByClass(BatchSampler):
-    def __init__(self, ds, seed=123, classes_per_batch=15):
+    def __init__(self, ds, seed=123, classes_per_batch=15, samples_per_class=3):
         # each bach will have the size of classes_per_batch * samples_per_class
         # However this approach does not use all samples per epoch
         self.ds = ds
-        self.classes_per_batch = classes_per_batch
         self.classes_ds = {}
         self.labels = []
         # create one df for every class
@@ -19,11 +19,14 @@ class BatchSamplerByClass(BatchSampler):
                 self.classes_ds[row["labels"].item()] = [idx]
             else: 
                 self.classes_ds[row["labels"].item()].append(idx)
-        self.samples_per_class = min([len(v) for v in self.classes_ds.values()])
+        self.classes_per_batch = min(classes_per_batch, len(list(self.classes_ds.keys())))
+        self.samples_per_class = min(min([len(v) for v in self.classes_ds.values()]), samples_per_class)
         self.batch_size = self.samples_per_class * self.classes_per_batch
+        print("batch size class sampler", self.batch_size)
         np.random.seed(seed)
 
     def __iter__(self):
+        print("len", self.__len__())
         for i in range(0, self.__len__()):
             batch = [0] * self.batch_size
             idx_in_batch = 0

@@ -16,9 +16,13 @@
         "batch_size": 160,
         "learning_rate": 1e-5,
         "nb_epochs": 100,
-        "sampler": "ensure_positive",
+        "sampler": "class_sampler",
+        "class_sampler_config": {
+            "samples_per_class": 25,
+            "classes_per_batch": 5
+        },
         "use_augmentation": false,
-        "train_val_split_overlapping": true,
+        "train_val_split_overlapping": false,
         "augment_config": {
             "use_erase": false,
             "use_intensity": false,
