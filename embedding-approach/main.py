@@ -36,6 +36,7 @@ def main(dataset_paths, config):
                     train_val_split_overlapping=config["train"]["train_val_split_overlapping"],
                     class_sampler_config = config["train"]["class_sampler_config"],
                     cutoff_classes = config["model"]["cutoff_classes"],
+                    l2_factor = config["train"]["l2_factor"],
                     dataset_statistics=dataset_statistics
             )
             model = TripletLoss.load_from_checkpoint(model_path)

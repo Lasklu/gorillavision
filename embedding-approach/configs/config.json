@@ -11,7 +11,7 @@
         "input_height": 300,
         "embedding_size": 256,
         "model_save_path": "/models",
-        "cutoff_classes": false
+        "cutoff_classes": true
     },
     "train": {
         "batch_size": 160,
@@ -23,12 +23,13 @@
             "classes_per_batch": 5
         },
         "use_augmentation": false,
-        "train_val_split_overlapping": false,
+        "train_val_split_overlapping": true,
         "augment_config": {
             "use_erase": false,
             "use_intensity": false,
             "use_geometric": true
-        }
+        },
+        "l2_factor": 1e-5
     },
     "predict": {
         "db_path": "/gorilla-reidentification/embedding-approach/database/bristol",

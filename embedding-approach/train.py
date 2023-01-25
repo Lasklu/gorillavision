@@ -16,7 +16,7 @@ from typing import Tuple
 
 
 def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,augment_config,
-          model_save_path, dataset_statistics, train_val_split_overlapping, class_sampler_config, cutoff_classes):
+          model_save_path, dataset_statistics, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor):
     logger.info("Initializing Model")
     img_size: Tuple[int, int] = (input_width, input_height)
     if (not os.path.exists(model_save_path)):
@@ -32,6 +32,7 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         train_val_split_overlapping=train_val_split_overlapping,
         class_sampler_config=class_sampler_config,
         cutoff_classes=cutoff_classes,
+        l2_factor=l2_factor,
         img_size=img_size)
 
     logger.info("Initializing Wandb")
@@ -104,7 +105,8 @@ if __name__ == '__main__':
     train_val_split_overlapping = config["train"]["train_val_split_overlapping"]
     class_sampler_config = config["train"]["class_sampler_config"]
     cutoff_classes = config["model"]["cutoff_classes"]
+    l2_factor = config["train"]["l2_factor"]
     train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,
-          model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes)
+          model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor)
 
     

@@ -25,7 +25,7 @@ class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001,
                  sampler="class_sampler", use_augmentation=False, train_val_split_overlapping=False,
                  augment_config={"use_erase": False, "use_intensity": False, "use_geometric": True},
-                 class_sampler_config={}, cutoff_classes=True):
+                 class_sampler_config={}, cutoff_classes=True, l2_factor=1e-5):
         super(TripletLoss, self).__init__()
         self.save_hyperparameters()
         self.df = df
@@ -38,6 +38,7 @@ class TripletLoss(pl.LightningModule):
         self.augment_batch = DataAugmentation(augment_config)
         self.train_val_split_overlapping = train_val_split_overlapping
         self.cutoff_classes = cutoff_classes
+        self.l2_factor = l2_factor
         num_classes=self.df["labels_numeric"].nunique()
         print("Amount of individuals", num_classes)
 
@@ -78,7 +79,7 @@ class TripletLoss(pl.LightningModule):
         print("Preparing Data completed.")
 
     def configure_optimizers(self):
-        return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=0.0)
+        return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=self.l2_factor)
 
     def train_dataloader(self):
         if self.sampler == "class_sampler":
