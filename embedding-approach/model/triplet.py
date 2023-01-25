@@ -23,7 +23,8 @@ import wandb
 
 class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001,
-                 sampler="class_sampler", use_augmentation=False, augment_config={"use_erase": False, "use_intensity": False, "use_geometric": True}):
+                 sampler="class_sampler", use_augmentation=False, train_val_split_overlapping=False,
+                 augment_config={"use_erase": False, "use_intensity": False, "use_geometric": True}):
         super(TripletLoss, self).__init__()
         self.save_hyperparameters()
         self.df = df
@@ -33,6 +34,7 @@ class TripletLoss(pl.LightningModule):
         self.sampler = sampler
         self.use_augmentation = use_augmentation
         self.augment_batch = DataAugmentation(augment_config)
+        self.train_val_split_overlapping = train_val_split_overlapping
         num_classes=self.df["labels_numeric"].nunique()
         print("Amount of individuals", num_classes)
 
@@ -56,8 +58,10 @@ class TripletLoss(pl.LightningModule):
 
     def prepare_data(self):
         print("Preparing Data...")
-        #train, validate = custom_train_val_split(self.df, test_size=0.3, random_state=0, label_col_name="labels_numeric")
-        train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
+        if self.train_val_split_overlapping:
+            train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
+        else:
+            train, validate = custom_train_val_split(self.df, test_size=0.3, random_state=0, label_col_name="labels_numeric")
         self.train_ds = IndividualsDS(train, self.img_size)
         self.validate_ds = IndividualsDS(validate, self.img_size)
         if self.sampler == "class_sampler": 

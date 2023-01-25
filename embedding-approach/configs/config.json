@@ -18,6 +18,7 @@
         "nb_epochs": 100,
         "sampler": "ensure_positive",
         "use_augmentation": false,
+        "train_val_split_overlapping": true,
         "augment_config": {
             "use_erase": false,
             "use_intensity": false,
