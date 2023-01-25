@@ -35,6 +35,7 @@ def main(dataset_paths, config):
                     model_save_path=f'{config["model"]["model_save_path"]}/{dataset_path.split("/")[-1]}',
                     train_val_split_overlapping=config["train"]["train_val_split_overlapping"],
                     class_sampler_config = config["train"]["class_sampler_config"],
+                    cutoff_classes = config["model"]["cutoff_classes"],
                     dataset_statistics=dataset_statistics
             )
             model = TripletLoss.load_from_checkpoint(model_path)

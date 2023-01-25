@@ -36,6 +36,7 @@ class Inception3(nn.Module):
         inception_blocks: Optional[List[Callable[..., nn.Module]]] = None,
         init_weights: Optional[bool] = None,
         dropout: float = 0.5,
+        cutoff_classes: bool = True
     ) -> None:
         super().__init__()
         _log_api_usage_once(self)
@@ -58,7 +59,8 @@ class Inception3(nn.Module):
         inception_d = inception_blocks[4]
         inception_e = inception_blocks[5]
         inception_aux = inception_blocks[6]
-
+        
+        self.cutoff_classes = cutoff_classes
         self.aux_logits = aux_logits
         self.transform_input = transform_input
         self.Conv2d_1a_3x3 = conv_block(3, 32, kernel_size=3, stride=2)
@@ -144,16 +146,18 @@ class Inception3(nn.Module):
         x = self.Mixed_7b(x)
         # N x 2048 x 8 x 8
         x = self.Mixed_7c(x)
-        # N x 2048 x 8 x 8
-        # Adaptive average pooling
-        #x = self.avgpool(x)
-        # N x 2048 x 1 x 1
-        #x = self.dropout(x)
-        # N x 2048 x 1 x 1
-       # x = torch.flatten(x, 1)
-        # N x 2048
-        #x = self.fc(x)
-        # N x 1000 (num_classes)
+
+        if not self.cutoff_classes:
+            # N x 2048 x 8 x 8
+            # Adaptive average pooling
+            x = self.avgpool(x)
+            # N x 2048 x 1 x 1
+            x = self.dropout(x)
+            # N x 2048 x 1 x 1
+            # x = torch.flatten(x, 1)
+            # N x 2048
+            # x = self.fc(x)
+            # N x 1000 (num_classes)
         return x, aux
 
     @torch.jit.unused
@@ -434,7 +438,7 @@ class Inception_V3_Weightsm(WeightsEnum):
 
 @register_model()
 @handle_legacy_interface(weights=("pretrained", Inception_V3_Weights.IMAGENET1K_V1))
-def inception_modified(*, weights: Optional[Inception_V3_Weights] = None, progress: bool = True, **kwargs: Any) -> Inception3:
+def inception_modified(*, weights: Optional[Inception_V3_Weights] = None, progress: bool = True, cutoff_classes: bool = True, **kwargs: Any) -> Inception3:
     """
     Inception v3 model architecture from
     `Rethinking the Inception Architecture for Computer Vision <http://arxiv.org/abs/1512.00567>`_.
@@ -466,7 +470,7 @@ def inception_modified(*, weights: Optional[Inception_V3_Weights] = None, progre
         _ovewrite_named_param(kwargs, "init_weights", False)
         _ovewrite_named_param(kwargs, "num_classes", len(weights.meta["categories"]))
 
-    model = Inception3(**kwargs)
+    model = Inception3(cutoff_classes=cutoff_classes, **kwargs)
 
     if weights is not None:
         model.load_state_dict(weights.get_state_dict(progress=progress))

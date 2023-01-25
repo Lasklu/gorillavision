@@ -12,7 +12,7 @@ from torchvision.models import Inception_V3_Weights
 from torchvision import transforms
 from typing import Tuple
 import numpy as np
-from .inception import inception_modified as test
+from .inception import inception_modified as create_inception_model
 from .inception import InceptionOutputs
 from utils.batch_sampler_triplet import TripletBatchSampler
 from utils.batch_sampler_ensure_positives import BatchSamplerEnsurePositives
@@ -25,7 +25,7 @@ class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001,
                  sampler="class_sampler", use_augmentation=False, train_val_split_overlapping=False,
                  augment_config={"use_erase": False, "use_intensity": False, "use_geometric": True},
-                 class_sampler_config={}):
+                 class_sampler_config={}, cutoff_classes=True):
         super(TripletLoss, self).__init__()
         self.save_hyperparameters()
         self.df = df
@@ -37,19 +37,20 @@ class TripletLoss(pl.LightningModule):
         self.use_augmentation = use_augmentation
         self.augment_batch = DataAugmentation(augment_config)
         self.train_val_split_overlapping = train_val_split_overlapping
+        self.cutoff_classes = cutoff_classes
         num_classes=self.df["labels_numeric"].nunique()
         print("Amount of individuals", num_classes)
 
-        # backend building a feature map
-        self.backend = test(weights=Inception_V3_Weights.IMAGENET1K_V1)
-        self.backend.eval()
+        # backbone building a feature map
+        self.backbone = create_inception_model(weights=Inception_V3_Weights.IMAGENET1K_V1, cutoff_classes=cutoff_classes)
+        self.backbone.eval()
         # global average pooling over feature maps to avoid overfitting
         self.pooling = AdaptiveAvgPool2d((5,5))
         # filly connected layer to create the embedding vector
         self.linear = Linear(2048*5*5, embedding_size)
     
     def forward(self, x: Tensor):
-        x = self.backend(x)
+        x = self.backbone(x)
         if isinstance(x, InceptionOutputs):
             x = x.logits
 

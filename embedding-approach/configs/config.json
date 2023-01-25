@@ -10,13 +10,14 @@
         "input_width": 300,
         "input_height": 300,
         "embedding_size": 256,
-        "model_save_path": "/models"
+        "model_save_path": "/models",
+        "cutoff_classes": false
     },
     "train": {
         "batch_size": 160,
         "learning_rate": 1e-5,
         "nb_epochs": 100,
-        "sampler": "class_sampler",
+        "sampler": "ensure_positive",
         "class_sampler_config": {
             "samples_per_class": 25,
             "classes_per_batch": 5
