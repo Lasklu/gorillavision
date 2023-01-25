@@ -54,7 +54,7 @@ def main(dataset_paths, config):
             logger.info(f"Database created of shape {np.shape(embeddings)}. Scoring model...")
             results = score(
                     model=model,
-                    image_folder=os.path.join(dataset_path, "test"),
+                    image_folder=os.path.join(dataset_path, "val"),
                     labels=labels,
                     embeddings=embeddings,
                     images=images,

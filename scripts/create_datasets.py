@@ -16,6 +16,66 @@ train_classes_cxl = random.sample(classes_cxl, round(len(classes_cxl) * 0.9))
 
 datasets = [
 	{
+		"name": 'onlybristol_5perId_train_all_0.75',
+		'datasets': [
+      	{'dataset_path': bristol_dataset,
+		'elements_per_id': 5,
+		'train_test_split': {
+			'train_classes': 'all',
+			'percentage': 0.75
+		}}]
+	},
+	{
+		"name": 'onlybristol_5perId_train_5_0.75',
+		'datasets': [
+      	{'dataset_path': bristol_dataset,
+		'elements_per_id': 5,
+		'train_test_split': {
+			'train_classes': train_classes_bristol,
+			'percentage': 0.75
+		}}]
+	},
+	{
+		"name": 'onlybristol_3perId_train_all_0.75',
+		'datasets': [
+      	{'dataset_path': bristol_dataset,
+		'elements_per_id': 3,
+		'train_test_split': {
+			'train_classes': 'all',
+			'percentage': 0.75
+		}}]
+	},
+	{
+		"name": 'onlybristol_3perId_train_5_0.75',
+		'datasets': [
+      	{'dataset_path': bristol_dataset,
+		'elements_per_id': 3,
+		'train_test_split': {
+			'train_classes': train_classes_bristol,
+			'percentage': 0.75
+		}}]
+	},
+	{
+		"name": 'onlybristol_1perId_train_all_0.75',
+		'datasets': [
+      	{'dataset_path': bristol_dataset,
+		'elements_per_id': 1,
+		'train_test_split': {
+			'train_classes': 'all',
+			'percentage': 0.75
+		}}]
+	},
+	{
+		"name": 'onlybristol_1perId_train_5_0.75',
+		'datasets': [
+      	{'dataset_path': bristol_dataset,
+		'elements_per_id': 1,
+		'train_test_split': {
+			'train_classes': train_classes_bristol,
+			'percentage': 0.75
+		}}]
+	},
+	{
 		"name": 'onlybristol_10perId_train_all_0.75',
 		'datasets': [
       	{'dataset_path': bristol_dataset,
@@ -151,6 +211,7 @@ def main():
 		make_folder(identifier, output_path)
 		make_folder(f"{identifier}/train", output_path)
 		make_folder(f"{identifier}/test", output_path)
+		make_folder(f"{identifier}/val", output_path)
 		for sub_dataset in dataset['datasets']:
 			for id in os.listdir(sub_dataset['dataset_path']):
 				if sub_dataset['train_test_split']['train_classes'] == 'all' or id in sub_dataset['train_test_split']['train_classes']:
@@ -175,6 +236,15 @@ def main():
 						shutil.copy(file_path, target_path)
 				else:
 					shutil.copytree(f"{sub_dataset['dataset_path']}/{id}", f"{output_path}/{identifier}/test/{id}")
+			for id in os.listdir(os.path.join(f"{output_path}/{identifier}", "test")):
+				make_folder(id, f"{output_path}/{identifier}/val")
+				files = os.listdir(os.path.join(f"{output_path}/{identifier}", "test", id))
+				random.shuffle(files)
+				for file_name in files[:round(len(files) * 0.2)]:
+					file_path = os.path.join(f"{output_path}/{identifier}", "test", id, file_name)
+					target_path = os.path.join(output_path, identifier, 'val', id, file_name)
+					shutil.move(file_path, target_path)
+
    
 def make_folder(folder_name, folder_path):
     folder = os.path.join(folder_path, folder_name)

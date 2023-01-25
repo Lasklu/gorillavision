@@ -78,7 +78,7 @@ def score(model, image_folder, labels, embeddings, images, input_width, input_he
                     predicted_labels.append(prediction)
                     all_data.append([individual_name, prediction, wandb.Image(img), *np.squeeze(predicted_embedding)])
     df = pd.DataFrame(columns=[*["target", "predicted", "img"], *dimensions], data=all_data)
-    wandb.log({"test_data": df})
+    wandb.log({"val_embeddings": df})
     predicted_embeddings = np.squeeze(predicted_embeddings)
     predicted_embeddings = np.squeeze(predicted_embeddings)
     #predicted_labels = knn_classifier.predict(predicted_embeddings)
