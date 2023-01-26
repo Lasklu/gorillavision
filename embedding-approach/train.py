@@ -57,7 +57,7 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
     logger.info("Initializing Trainer")
     checkpointCallback = ModelCheckpoint(
         dirpath=model_save_path,
-        filename="Model_"+str(wandb.run.name)+'-{epoch}-loss-{val_loss:.20f}',
+        filename="Model_"+str(wandb.run.name)+'-{epoch}-loss-{val_loss:.50f}',
         verbose=True,
         monitor='val_loss',
         mode='min')
