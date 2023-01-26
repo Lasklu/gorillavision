@@ -55,7 +55,8 @@ def score(model, image_folder, labels, embeddings, images, input_width, input_he
     # Log and calculate metrics
     df = pd.DataFrame(columns=[*["target", "predicted", "img"], *dimensions], data=all_data)
     wandb.log({"val_embeddings": df})
-    metrics = compute_prediction_metrics(test_labels, predicted_labels, predicted_scores)
+    all_unique_labels = list(set(labels))
+    metrics = compute_prediction_metrics(test_labels, predicted_labels, predicted_scores, all_unique_labels)
     print(metrics)
     for metric, value in metrics.items():
         wandb.summary[metric] = value

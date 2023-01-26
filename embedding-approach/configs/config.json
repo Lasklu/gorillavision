@@ -14,7 +14,7 @@
         "cutoff_classes": true
     },
     "train": {
-        "batch_size": 160,
+        "batch_size": 32,
         "learning_rate": 1e-5,
         "nb_epochs": 100,
         "sampler": "ensure_positive",
