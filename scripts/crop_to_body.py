@@ -16,14 +16,13 @@ img_ext = ".png"
 
 not_identifiable = []
 
-def load_labels(file_path):
-    file_name, ext = os.splittext(file_path)
+def load_labels(file_path, file_name):
     labels = []
     with open(file_path) as label_file:
         for line in label_file:
             vals = line.split()[1:]
             coords_yolo = [float(val) for val in vals]
-            img = os.path.join(full_images_folder, file_name + img_ext)
+            img = Image.open(os.path.join(full_images_folder, file_name + img_ext))
             coords = yolobbox2bbox(*coords_yolo, img.width, img.height)
             labels.append(list(coords))
     return labels
@@ -47,15 +46,15 @@ def calc_overlap_area(x1, y1, w1, h1, x2, y2, w2, h2):
 
 def get_bbox_of_face(face_img, full_image):
     result = cv2.matchTemplate(face_img, full_image, cv2.TM_CCOEFF_NORMED)
-    face_w, face_h = img1.shape[:2]
-    img_height, img_width, img_channels = img2.shape
+    face_w, face_h = face_img.shape[:2]
+    img_height, img_width, img_channels = full_image.shape
 
     _, _, _, max_loc = cv2.minMaxLoc(result)
     x, y = max_loc
     return (x, y, face_w, face_h)
 
 def find_primary_bb(body_bb_labels, full_image, face_image, file_name):
-    bbox_of_face = get_bbox_of_face_in_img()
+    bbox_of_face = get_bbox_of_face(face_image, full_image)
     highest_overlap = 0
     highest_overlap_bb = None
     for bb in body_bb_labels:
@@ -69,16 +68,17 @@ def find_primary_bb(body_bb_labels, full_image, face_image, file_name):
     # validate that we actually found the correct gorilla for this
     if highest_overlap < 0.8* area_of_face:
         return None
-    return found_bb
+    return highest_overlap_bb
 
-for label_file in labels_folder:
-    file_name, ext = os.splittext(label_file)
-    body_labels = load_labels(label_file)
+for label_file in os.listdir(labels_folder):
+    file_name, ext = os.path.splitext(label_file)
+    body_labels = load_labels(os.path.join(labels_folder, label_file), file_name)
     full_image = cv2.imread(os.path.join(full_images_folder, f"{file_name}{img_ext}"))
     cropped_face_image = cv2.imread(os.path.join(cropped_faced_folder, f"{file_name}{img_ext}"))
     primary_bb = find_primary_bb(body_labels, full_image, cropped_face_image, file_name)
     if primary_bb == None:
         continue
-    cropped_img = image.crop(tuple(bb))
+    image = Image.open(os.path.join(full_images_folder, f"{file_name}{img_ext}"))
+    cropped_img = image.crop(tuple(primary_bb))
     out_path = os.path.join(output_folder, file_name + ".png")
-    cropped_image.save(out_path)
+    cropped_img.save(out_path)
