@@ -25,7 +25,7 @@ class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001,
                  sampler="class_sampler", use_augmentation=False, train_val_split_overlapping=False,
                  augment_config={"use_erase": False, "use_intensity": False, "use_geometric": True},
-                 class_sampler_config={}, cutoff_classes=True, l2_factor=1e-5):
+                 class_sampler_config={}, cutoff_classes=True, l2_factor=1e-5, img_preprocess="crop"):
         super(TripletLoss, self).__init__()
         self.save_hyperparameters()
         self.df = df
@@ -39,6 +39,7 @@ class TripletLoss(pl.LightningModule):
         self.train_val_split_overlapping = train_val_split_overlapping
         self.cutoff_classes = cutoff_classes
         self.l2_factor = l2_factor
+        self.img_preprocess = img_preprocess
         num_classes=self.df["labels_numeric"].nunique()
         print("Amount of individuals", num_classes)
 
@@ -66,8 +67,8 @@ class TripletLoss(pl.LightningModule):
             train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
         else:
             train, validate = custom_train_val_split(self.df, test_size=0.4, random_state=0, label_col_name="labels_numeric")
-        self.train_ds = IndividualsDS(train, self.img_size)
-        self.validate_ds = IndividualsDS(validate, self.img_size)
+        self.train_ds = IndividualsDS(train, self.img_size, self.img_preprocess)
+        self.validate_ds = IndividualsDS(validate, self.img_size, self.img_preprocess)
         if self.sampler == "class_sampler":
             classes_per_batch = self.class_sampler_config["classes_per_batch"]
             samples_per_class = self.class_sampler_config["samples_per_class"]

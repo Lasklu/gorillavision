@@ -11,7 +11,8 @@
         "input_height": 300,
         "embedding_size": 256,
         "model_save_path": "/models",
-        "cutoff_classes": true
+        "cutoff_classes": true,
+        "img_preprocess": "crop"
     },
     "train": {
         "batch_size": 32,
