@@ -15,8 +15,8 @@ def yolobbox2bbox(x,y,w,h, img_w, img_h):
     return x1*img_w, y1*img_h, x2*img_w, y2*img_h
 
 label_id = "0" # descripes which label should be read. Currently there must be only one label of this type
-images_folder = "/home/rohan/Documents/Uni/Sem3/AI/Data/Individual_ID-20221108T122531Z-001/Faces_Dante/images"
-lables_folder = "/home/rohan/Documents/Uni/Sem3/AI/Data/Individual_ID-20221108T122531Z-001/Faces_Dante/labels_primary_faces"
+images_folder = "./data/cxl/images/all_images"
+lables_folder = "./data/cxl/labels"
 output_folder = os.path.join(images_folder, "cropped")
 
 if not os.path.exists(output_folder):
