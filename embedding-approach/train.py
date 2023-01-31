@@ -16,7 +16,7 @@ from typing import Tuple
 
 
 def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,augment_config,
-          model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor, img_preprocess):
+          model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor, img_preprocess, dataset_statistics):
     logger.info("Initializing Model")
     img_size: Tuple[int, int] = (input_width, input_height)
     if (not os.path.exists(model_save_path)):
@@ -49,7 +49,8 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         "train_val_split_overlapping": train_val_split_overlapping,
         "cutoff_classes": cutoff_classes,
         "l2_factor": l2_factor,
-        "img_preprocess": img_preprocess
+        "img_preprocess": img_preprocess,
+        "dataset_statistics": dataset_statistics
     }
    # wandb.init(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
     wandb_logger = WandbLogger(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
