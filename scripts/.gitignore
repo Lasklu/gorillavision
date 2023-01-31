@@ -1,3 +1,5 @@
 .images/
 .labels/
 .data/
+data/
+data/*

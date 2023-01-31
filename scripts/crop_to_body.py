@@ -7,12 +7,11 @@ import numpy as np
 # crop to the body of this primary gorilla
 
 # ensure naming is consistent for matching files in each folder
-labels_folder = "./data/labels"
-full_images_folder = "./data/full"
-cropped_faced_folder = "./data/cropped"
-output_folder = "./data/out"
-
-img_ext = ".png"
+labels_folder = "./data/bristol/body_labels"
+full_images_folder = "./data/bristol/full_images"
+cropped_faced_folder = "./data/bristol/face_images/5"
+output_folder = "./data/bristol/body_images/5"
+img_ext = ".jpg"
 
 not_identifiable = []
 
@@ -70,11 +69,15 @@ def find_primary_bb(body_bb_labels, full_image, face_image, file_name):
         return None
     return highest_overlap_bb
 
-for label_file in os.listdir(labels_folder):
+for img_file in os.listdir(cropped_faced_folder):
+    file_name, ext = os.path.splitext(img_file)
+    label_file = f"{file_name}.txt"
     file_name, ext = os.path.splitext(label_file)
+    if not os.path.exists(os.path.join(labels_folder, label_file)):
+        continue
     body_labels = load_labels(os.path.join(labels_folder, label_file), file_name)
-    full_image = cv2.imread(os.path.join(full_images_folder, f"{file_name}{img_ext}"))
-    cropped_face_image = cv2.imread(os.path.join(cropped_faced_folder, f"{file_name}{img_ext}"))
+    full_image = cv2.imread(os.path.join(full_images_folder, f"{file_name}.jpg"))
+    cropped_face_image = cv2.imread(os.path.join(cropped_faced_folder, img_file))
     primary_bb = find_primary_bb(body_labels, full_image, cropped_face_image, file_name)
     if primary_bb == None:
         continue

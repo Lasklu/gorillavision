@@ -21,7 +21,6 @@ if not os.path.exists(output_folder):
     os.mkdir(output_folder)
 
 for file in os.listdir(images_folder):
-    print(file)
     file_name, file_extension = os.path.splitext(file)
     label_path = os.path.join(lables_folder, file_name + ".txt")
     if file_extension != ".png" or not os.path.exists(label_path):
