@@ -16,8 +16,9 @@ def main(dataset_paths, config):
     logger.info(f"Training model in the following datasets: {dataset_paths}")
     try: 
         for dataset_path in dataset_paths:
-            logger.info(f"Loading data for dataset stored in: {dataset_path}...")
-            dataset_statistics = compute_statistics(os.path.join(dataset_path, "train"), os.path.join(dataset_path, "test"), "bristol")
+            dataset_type = dataset_path.split("/")[-1].split("_")[0]
+            logger.info(f"Loading data for dataset of type {dataset_type} stored in: {dataset_path}...")
+            dataset_statistics = compute_statistics(os.path.join(dataset_path, "train"), os.path.join(dataset_path, "test"), dataset_type)
             logger.info(f"Dataset has the following statistics: {dataset_statistics}")
             df = load_data(os.path.join(dataset_path, "train"))
             logger.info("Training model...")
