@@ -88,7 +88,7 @@ class TripletLoss(pl.LightningModule):
         elif self.sampler == "random_sampler":
             return DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
         elif self.sampler == "ensure_positive":
-            return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
+            return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=8)
             #return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
         raise Exception("No sampler specified")
 
@@ -98,7 +98,7 @@ class TripletLoss(pl.LightningModule):
         elif self.sampler == "random_sampler":
             return DataLoader(self.validate_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
         elif self.sampler == "ensure_positive":
-            return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_val, num_workers=8)
+            return DataLoader(self.validate_ds, batch_sampler=self.batch_sampler_val, num_workers=8)
         raise Exception("No sampler specified")
 
     def on_after_batch_transfer(self, batch, dataloader_idx):
