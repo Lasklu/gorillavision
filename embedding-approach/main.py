@@ -43,15 +43,8 @@ def main(dataset_paths, config):
             )
             model = TripletLoss.load_from_checkpoint(model_path)
             logger.info(f"Model trained. Stored in: {model_path}. Creating database...")
-            create_db(
-                    image_folder=os.path.join(dataset_path, "train"),
-                    model=model,
-                    type="train",
-                    input_width=config['model']['input_width'],
-                    input_height=config['model']['input_height'],
-            )
             labels, embeddings, images = create_db(
-                    image_folder=os.path.join(dataset_path, "test"),
+                    image_folder=os.path.join(dataset_path, "database_set"),
                     model=model,
                     type="test",
                     input_width=config['model']['input_width'],
@@ -60,7 +53,7 @@ def main(dataset_paths, config):
             logger.info(f"Database created of shape {np.shape(embeddings)}. Scoring model...")
             results = score(
                     model=model,
-                    image_folder=os.path.join(dataset_path, "val"),
+                    image_folder=os.path.join(dataset_path, "eval"),
                     labels=labels,
                     embeddings=embeddings,
                     images=images,
