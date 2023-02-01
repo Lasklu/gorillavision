@@ -80,6 +80,13 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
     for model_name in list(filter(lambda file_name: file_name[:5]=="Model", os.listdir(model_save_path))):
         def get_loss(model_name):
             return float(model_name.split("=")[-1][:-5])
+        def get_name(model_name):
+            print(model_name)
+            name = "-".join(model_name.split("_")[1].split("-")[:3])
+            print(name)
+            return name
+        if get_name(model_name) == str(wandb.run.name):
+            continue
         if get_loss(model_name) < best_loss:
             best_loss = get_loss(model_name)
             best_model = model_name
