@@ -18,7 +18,7 @@ def main(dataset_paths, config):
         for dataset_path in dataset_paths:
             dataset_type = dataset_path.split("/")[-1].split("_")[0]
             logger.info(f"Loading data for dataset of type {dataset_type} stored in: {dataset_path}...")
-            dataset_statistics = compute_statistics(os.path.join(dataset_path, "train"), os.path.join(dataset_path, "test"), dataset_type)
+            dataset_statistics = compute_statistics(os.path.join(dataset_path, "train"), os.path.join(dataset_path, "database_set"), dataset_type)
             logger.info(f"Dataset has the following statistics: {dataset_statistics}")
             df = load_data(os.path.join(dataset_path, "train"))
             logger.info("Training model...")
@@ -46,7 +46,7 @@ def main(dataset_paths, config):
             labels, embeddings, images = create_db(
                     image_folder=os.path.join(dataset_path, "database_set"),
                     model=model,
-                    type="test",
+                    type="database_set",
                     input_width=config['model']['input_width'],
                     input_height=config['model']['input_height'],
             )

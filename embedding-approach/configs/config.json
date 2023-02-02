@@ -1,6 +1,6 @@
 {
     "main": {
-        "path": "/data/gorilla_experiment_splits/train_test_non_distinct"
+        "path": "/data/train_test_non_distinct"
     },
     "data": {
         "path": "/data/data/train",
@@ -15,9 +15,9 @@
         "img_preprocess": "crop"
     },
     "train": {
-        "batch_size": 32,
+        "batch_size": 64,
         "learning_rate": 1e-5,
-        "nb_epochs": 100,
+        "nb_epochs": 250,
         "sampler": "ensure_positive",
         "class_sampler_config": {
             "samples_per_class": 25,
