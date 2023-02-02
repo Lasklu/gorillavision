@@ -20,7 +20,7 @@ import wandb
 import json
 from utils.image import transform_image
 
-def score(model, image_folder, labels, embeddings, images, input_width, input_height):
+def score(model, image_folder, labels, embeddings, images, input_width, input_height, img_preprocess):
     # setup knn classifier based in labels and embeddings from "db"
     knn_classifier = neighbors.KNeighborsClassifier()
     knn_classifier.fit(embeddings, labels)
@@ -41,7 +41,7 @@ def score(model, image_folder, labels, embeddings, images, input_width, input_he
                 label, ext = os.path.splitext(img_file)
                 if ext not in [".png", ".jpg", ".jpeg"]:
                     continue
-                img = transform_image(imread(os.path.join(image_folder, folder, img_file)), (input_width, input_height))
+                img = transform_image(imread(os.path.join(image_folder, folder, img_file)), (input_width, input_height), img_preprocess)
                 with torch.no_grad():
                     predicted_embedding = model(img).numpy()
                     prediction = knn_classifier.predict(predicted_embedding)

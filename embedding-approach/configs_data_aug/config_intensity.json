@@ -23,12 +23,12 @@
             "samples_per_class": 25,
             "classes_per_batch": 5
         },
-        "use_augmentation": false,
+        "use_augmentation": true,
         "train_val_split_overlapping": true,
         "augment_config": {
             "use_erase": false,
-            "use_intensity": false,
-            "use_geometric": true
+            "use_intensity": true,
+            "use_geometric": false
         },
         "l2_factor": 1e-5
     },

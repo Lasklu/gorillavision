@@ -1,6 +1,12 @@
 from sklearn.metrics import f1_score, confusion_matrix, precision_score, recall_score, accuracy_score, classification_report, top_k_accuracy_score
 
 def compute_prediction_metrics(y_true, y_pred, y_score, all_labels)-> dict:
+    print("y_true", y_true)
+    print("y_pred", y_pred)
+    print("y_score", y_score)
+    print("all labels", all_labels)
+    if len(y_score[0]) == 2:
+        y_score = [all_labels[score.index(min(score))] for score in y_score]
     metrics = {   
         "recall": recall_score(y_true, y_pred,average='micro'),
         "precision": precision_score(y_true, y_pred,average='micro'),

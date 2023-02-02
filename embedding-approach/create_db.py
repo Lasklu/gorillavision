@@ -11,7 +11,7 @@ import numpy as np
 from utils.image import transform_image
 import wandb
 
-def create_db(image_folder, model,type, input_width, input_height):
+def create_db(image_folder, model,type, input_width, input_height, img_preprocess):
     labels = []
     embeddings = []
     images = []
@@ -28,7 +28,7 @@ def create_db(image_folder, model,type, input_width, input_height):
                 continue
             with torch.no_grad():
                 img_path = os.path.join(image_folder,folder, img_file)
-                img = transform_image(imread(img_path), (input_width, input_height))
+                img = transform_image(imread(img_path), (input_width, input_height), img_preprocess)
                 labels.append(folder)
                 #images.append(wandb.Image(img))
                 embedding = model(img).numpy()[0]
