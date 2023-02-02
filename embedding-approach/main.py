@@ -46,7 +46,7 @@ def main(dataset_paths, config):
             labels, embeddings, images = create_db(
                     image_folder=os.path.join(dataset_path, "database_set"),
                     model=model,
-                    type="test",
+                    type="database_set",
                     input_width=config['model']['input_width'],
                     input_height=config['model']['input_height'],
                     img_preprocess=config['model']["img_preprocess"]  

@@ -1,6 +1,10 @@
 {
     "main": {
+<<<<<<< HEAD
         "path": "/data/exp_for_resize_distinct"
+=======
+        "path": "/data/train_test_non_distinct"
+>>>>>>> a8ccd86f3bc3efd39eaa46955c394aa5b0d1fe88
     },
     "data": {
         "path": "/data/data/train",
