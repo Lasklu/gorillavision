@@ -26,10 +26,6 @@ class IndividualsDS(Dataset):
     
     def __getitem__(self, key):
         row = self.dataFrame.iloc[key]
-        print(row['images'].shape)
-        img = self.transformations(row['images'])
-        print(img)
-        exit(save_image(img, './img1.png'))
         return {
             'images': self.transformations(row['images']),
             'labels': tensor([row['labels_numeric']], dtype=long),
