@@ -22,6 +22,11 @@ def main(dataset_paths, config):
             logger.info(f"Dataset has the following statistics: {dataset_statistics}")
             df = load_data(os.path.join(dataset_path, "train"))
             logger.info("Training model...")
+
+            # double epochs for cxl dataset
+            print("cxl" in str(dataset_path))
+            nb_epochs = 2*config["train"]["nb_epochs"] if "cxl" in str(dataset_path) else config["train"]["nb_epochs"] 
+
             model_path = train(
                     df=df,
                     lr=config["train"]["learning_rate"],
@@ -29,7 +34,7 @@ def main(dataset_paths, config):
                     input_width=config['model']['input_width'],
                     input_height=config['model']['input_height'],
                     embedding_size=config["model"]["embedding_size"],
-                    nb_epochs=config["train"]["nb_epochs"],
+                    nb_epochs=nb_epochs,
                     sampler=config["train"]["sampler"],
                     use_augmentation=config["train"]["use_augmentation"],
                     augment_config=config["train"]["augment_config"],
@@ -39,7 +44,8 @@ def main(dataset_paths, config):
                     cutoff_classes = config["model"]["cutoff_classes"],
                     l2_factor = config["train"]["l2_factor"],
                     img_preprocess = config["model"]["img_preprocess"],
-                    dataset_statistics=dataset_statistics
+                    dataset_statistics=dataset_statistics,
+                    backbone = config["model"]["backbone"]
             )
             model = TripletLoss.load_from_checkpoint(model_path)
             logger.info(f"Model trained. Stored in: {model_path}. Creating database...")

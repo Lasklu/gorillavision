@@ -1,8 +1,9 @@
-from utils.transformations import FillSizePad
+from utils.transformations import EnsureSize, FillSizePad
 from torch import long, tensor
 from torch.utils.data.dataset import Dataset
 from torchvision.transforms import Compose, Resize, ToPILImage, ToTensor
 from typing import Tuple
+from torchvision.utils import save_image
 
 class IndividualsDS(Dataset):
 
@@ -17,14 +18,18 @@ class IndividualsDS(Dataset):
 
         transformations_pad = Compose([
             ToPILImage(),
+            EnsureSize(img_size),
             FillSizePad(img_size),
             ToTensor(),
         ])
-
         self.transformations = transformations_crop if img_preprocess == "crop" else transformations_pad
     
     def __getitem__(self, key):
         row = self.dataFrame.iloc[key]
+        print(row['images'].shape)
+        img = self.transformations(row['images'])
+        print(img)
+        exit(save_image(img, './img1.png'))
         return {
             'images': self.transformations(row['images']),
             'labels': tensor([row['labels_numeric']], dtype=long),

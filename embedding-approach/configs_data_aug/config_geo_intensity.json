@@ -1,9 +1,9 @@
 {
     "main": {
-        "path": "/data/train_test_non_distinct"
+        "path": "/data/exp_for_resize_distinct"
     },
     "data": {
-        "path": "/data/train_test_non_distinct/cxl_all_0_75/train",
+        "path": "/data/data/train",
         "split_seed": 123
     },
     "model": {
@@ -12,8 +12,7 @@
         "embedding_size": 256,
         "model_save_path": "/models",
         "cutoff_classes": true,
-        "img_preprocess": "padding",
-        "backbone": "inception"
+        "img_preprocess": "crop"
     },
     "train": {
         "batch_size": 64,
@@ -24,11 +23,11 @@
             "samples_per_class": 25,
             "classes_per_batch": 5
         },
-        "use_augmentation": false,
+        "use_augmentation": true,
         "train_val_split_overlapping": true,
         "augment_config": {
             "use_erase": false,
-            "use_intensity": false,
+            "use_intensity": true,
             "use_geometric": true
         },
         "l2_factor": 1e-5

@@ -25,7 +25,7 @@ class TripletLoss(pl.LightningModule):
     def __init__(self, df:pd.DataFrame, embedding_size, img_size: Tuple[int, int]=[300,300], batch_size=32, lr=0.00001,
                  sampler="class_sampler", use_augmentation=False, train_val_split_overlapping=False,
                  augment_config={"use_erase": False, "use_intensity": False, "use_geometric": True},
-                 class_sampler_config={}, cutoff_classes=True, l2_factor=1e-5, img_preprocess="crop"):
+                 class_sampler_config={}, cutoff_classes=True, l2_factor=1e-5, img_preprocess="crop", backbone="inception"):
         super(TripletLoss, self).__init__()
         self.save_hyperparameters()
         self.df = df
@@ -44,8 +44,14 @@ class TripletLoss(pl.LightningModule):
         print("Amount of individuals", num_classes)
 
         # backbone building a feature map
-        self.backbone = create_inception_model(weights=Inception_V3_Weights.IMAGENET1K_V1, cutoff_classes=cutoff_classes)
-        self.backbone.eval()
+        if backbone == "inception":
+            self.backbone = create_inception_model(weights=Inception_V3_Weights.IMAGENET1K_V1, cutoff_classes=cutoff_classes)
+            self.backbone.eval()
+        elif backbone == "vit":
+            self.backbone = create_vit_model()
+            self.backbone.eval()
+        else:
+            raise Exception("Invalid backbone given")
         # global average pooling over feature maps to avoid overfitting
         self.pooling = AdaptiveAvgPool2d((5,5))
         # filly connected layer to create the embedding vector

@@ -8,7 +8,7 @@
     },
     "model": {
         "input_width": 300,
-        "input_height": 400,
+        "input_height": 300,
         "embedding_size": 256,
         "model_save_path": "/models",
         "cutoff_classes": true,

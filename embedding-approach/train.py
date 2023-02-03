@@ -16,7 +16,8 @@ from typing import Tuple
 
 
 def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,augment_config,
-          model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor, img_preprocess, dataset_statistics):
+          model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor, img_preprocess, dataset_statistics,
+          backbone):
     logger.info("Initializing Model")
     img_size: Tuple[int, int] = (input_width, input_height)
     if (not os.path.exists(model_save_path)):
@@ -34,7 +35,8 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         cutoff_classes=cutoff_classes,
         l2_factor=l2_factor,
         img_size=img_size,
-        img_preprocess=img_preprocess)
+        img_preprocess=img_preprocess,
+        backbone=backbone)
 
     logger.info("Initializing Wandb")
     wandb_config = {
@@ -50,7 +52,8 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         "cutoff_classes": cutoff_classes,
         "l2_factor": l2_factor,
         "img_preprocess": img_preprocess,
-        "dataset_statistics": dataset_statistics
+        "dataset_statistics": dataset_statistics,
+        "backbone": backbone
     }
    # wandb.init(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
     wandb_logger = WandbLogger(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
@@ -118,7 +121,8 @@ if __name__ == '__main__':
     cutoff_classes = config["model"]["cutoff_classes"]
     l2_factor = config["train"]["l2_factor"]
     img_preprocess = config["model"]["img_preprocess"]
+    backbone = config["model"]["backbone"]
     train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation, augment_config,
-          model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor, img_preprocess)
+          model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor, img_preprocess, None, backbone)
 
     
