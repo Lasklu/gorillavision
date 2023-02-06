@@ -13,7 +13,9 @@ from torchvision import transforms
 from typing import Tuple
 import numpy as np
 from .inception import inception_modified as create_inception_model
+from .vit import vit_modified, vit_b_32_old
 from .inception import InceptionOutputs
+
 from utils.batch_sampler_triplet import TripletBatchSampler
 from utils.batch_sampler_ensure_positives import BatchSamplerEnsurePositives
 from utils.batch_sampler_by_class import BatchSamplerByClass
@@ -46,25 +48,33 @@ class TripletLoss(pl.LightningModule):
         # backbone building a feature map
         if backbone == "inception":
             self.backbone = create_inception_model(weights=Inception_V3_Weights.IMAGENET1K_V1, cutoff_classes=cutoff_classes)
-            self.backbone.eval()
         elif backbone == "vit":
-            self.backbone = create_vit_model()
-            self.backbone.eval()
+            self.backbone = vit_b_32_old(weights='DEFAULT')
         else:
             raise Exception("Invalid backbone given")
+        #self.backbone = create_inception_model(weights=Inception_V3_Weights.IMAGENET1K_V1, cutoff_classes=cutoff_classes)
+        #self.backbone = swin_v2_b(weights=Swin_V2_B_Weights)
+        #self.backbone = Swinv2Model.from_pretrained("microsoft/swinv2-tiny-patch4-window8-256")
+        self.backbone.eval()
         # global average pooling over feature maps to avoid overfitting
-        self.pooling = AdaptiveAvgPool2d((5,5))
+        #self.pooling = AdaptiveAvgPool2d((20,20))
+        
         # filly connected layer to create the embedding vector
-        self.linear = Linear(2048*5*5, embedding_size)
+        self.linear = Linear(50*768, embedding_size)
     
     def forward(self, x: Tensor):
         x = self.backbone(x)
+        #x = self.backbone(x)
+        #print("shape_backbone", np.shape(x))
         if isinstance(x, InceptionOutputs):
             x = x.logits
-
-        x = self.pooling(x)
+        #print("shape_backbone2", np.shape(x))
+        #x = self.pooling(x)
+        #print("shape poolin", np.shape(x))
         x = x.flatten(start_dim=1)
+        #print("shape flatteb", np.shape(x))
         x = self.linear(x)
+        #print("shape linear", np.shape(x))
         return x
 
     def prepare_data(self):
