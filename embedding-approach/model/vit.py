@@ -1,3 +1,5 @@
+# this code is copied and modified from the offical pytorch vision transformer repository
+
 import math
 from collections import OrderedDict
 from functools import partial

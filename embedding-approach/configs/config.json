@@ -1,6 +1,6 @@
 {
     "main": {
-        "path": "/data/train_test_non_distinct"
+        "path": "/data/exp1"
     },
     "data": {
         "path": "/data/train_test_non_distinct/cxl_all_0_75/train",

@@ -15,7 +15,6 @@ class FillSizePad(object):
         r_pad = h_padding if h_padding % 1 == 0 else h_padding-0.5
         b_pad = v_padding if v_padding % 1 == 0 else v_padding-0.5
         
-        print(int(l_pad), int(t_pad), int(r_pad), int(b_pad))
         return (int(l_pad), int(t_pad), int(r_pad), int(b_pad))
 
     def __call__(self, img):
