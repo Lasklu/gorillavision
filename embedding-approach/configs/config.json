@@ -7,13 +7,13 @@
         "split_seed": 123
     },
     "model": {
-        "input_width": 300,
-        "input_height": 300,
+        "input_width": 224,
+        "input_height": 224,
         "embedding_size": 256,
         "model_save_path": "/models",
         "cutoff_classes": true,
-        "img_preprocess": "padding",
-        "backbone": "inception"
+        "img_preprocess": "crop",
+        "backbone": "vit"
     },
     "train": {
         "batch_size": 64,
@@ -24,12 +24,12 @@
             "samples_per_class": 25,
             "classes_per_batch": 5
         },
-        "use_augmentation": false,
+        "use_augmentation": true,
         "train_val_split_overlapping": true,
         "augment_config": {
-            "use_erase": false,
-            "use_intensity": false,
-            "use_geometric": true
+            "use_erase": true,
+            "use_intensity": true,
+            "use_geometric": false
         },
         "l2_factor": 1e-5
     },

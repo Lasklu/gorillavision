@@ -20,7 +20,7 @@ def main():
     dataset_path = "/data/exp1/cxl_all_0_75"
     model_save_path = os.path.join("/models", dataset_path.split("/")[-1])
     run = wandb.init()
-    nb_epochs = 20 if "cxl" in str(dataset_path) else 250
+    nb_epochs = 500 if "cxl" in str(dataset_path) else 250
     augment_config = {
         "use_erase": wandb.config.use_erase,
         "use_geometric": wandb.config.use_geometric,
