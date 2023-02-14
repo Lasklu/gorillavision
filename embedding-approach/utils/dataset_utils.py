@@ -5,9 +5,7 @@ import pandas as pd
 import math
 
 def load_data(dataset_path):
-    # ToDo: This loads all images into memory - is this the way to go or bad?
     individuals_df = {'images': [], 'labels': []}
-    #individuals_df = pd.DataFrame(columns=['image', 'labels'])
     individuals = []
 
     for individual in os.listdir(dataset_path):

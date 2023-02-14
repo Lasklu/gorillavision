@@ -10,19 +10,20 @@ from model.triplet import TripletLoss
 from utils.dataset_utils import load_data
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
-from logger import logger
+from utils.logger import logger
 from typing import Tuple
-
 
 
 def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,augment_config,
           model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor, img_preprocess, dataset_statistics,
-          backbone):
+          backbone, experiment_desc="-"):
     logger.info("Initializing Model")
     img_size: Tuple[int, int] = (input_width, input_height)
+
     if (not os.path.exists(model_save_path)):
         logger.warning(f"Path {model_save_path} does not exist. Creating it...")
         os.mkdir(model_save_path)
+
     model = TripletLoss(df=df,
         embedding_size=embedding_size,
         lr=lr,
@@ -53,12 +54,11 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         "l2_factor": l2_factor,
         "img_preprocess": img_preprocess,
         "dataset_statistics": dataset_statistics,
-        "backbone": backbone
+        "backbone": backbone,
+        "experiment": experiment_desc
     }
-   # wandb.init(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
     wandb_logger = WandbLogger(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
     wandb_logger.watch(model, log="all")
-
 
     logger.info("Initializing Trainer")
     checkpointCallback = ModelCheckpoint(

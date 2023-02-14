@@ -1,6 +1,6 @@
 {
     "main": {
-        "path": "/data/exp1"
+        "path": "/data/train-all_test_cxl"
     },
     "data": {
         "path": "/data/train_test_non_distinct/cxl_all_0_75/train",
@@ -18,20 +18,20 @@
     "train": {
         "batch_size": 64,
         "learning_rate": 1e-5,
-        "nb_epochs": 250,
+        "nb_epochs": 200,
         "sampler": "ensure_positive",
         "class_sampler_config": {
             "samples_per_class": 25,
             "classes_per_batch": 5
         },
-        "use_augmentation": true,
+        "use_augmentation": false,
         "train_val_split_overlapping": true,
         "augment_config": {
             "use_erase": true,
             "use_intensity": true,
-            "use_geometric": false
+            "use_geometric": true
         },
-        "l2_factor": 1e-5
+        "l2_factor": null
     },
     "predict": {
         "db_path": "/gorilla-reidentification/embedding-approach/database/bristol",

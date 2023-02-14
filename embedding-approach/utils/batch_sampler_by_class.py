@@ -26,7 +26,6 @@ class BatchSamplerByClass(BatchSampler):
         np.random.seed(seed)
 
     def __iter__(self):
-        print("len", self.__len__())
         for i in range(0, self.__len__()):
             batch = [0] * self.batch_size
             idx_in_batch = 0

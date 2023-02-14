@@ -21,7 +21,7 @@ import json
 from utils.image import transform_image
 
 def score(model, image_folder, labels, embeddings, images, input_width, input_height, img_preprocess):
-    # setup knn classifier based in labels and embeddings from "db"
+    # setup knn classifier based in labels and embeddings from "db", k=5 default
     knn_classifier = neighbors.KNeighborsClassifier()
     knn_classifier.fit(embeddings, labels)
 
@@ -57,6 +57,8 @@ def score(model, image_folder, labels, embeddings, images, input_width, input_he
     wandb.log({"val_embeddings": df})
     all_unique_labels = list(set(labels))
     all_unique_labels.sort()
+    num_images_correct = sum([1 for idx in range(0, len(test_labels)) if test_labels[idx] == predicted_labels[idx]])
+    print(f"correctly classified {num_images_correct}/{len(test_labels)} images")
     metrics = compute_prediction_metrics(test_labels, predicted_labels, predicted_scores, all_unique_labels)
     print(metrics)
     for metric, value in metrics.items():

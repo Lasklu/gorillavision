@@ -1,4 +1,4 @@
-# this code is copied and modified from the offical pytorch vision transformer repository
+# this code is copied and modified from the offical pytorch vision transformer repository and was slightly modified
 
 import math
 from collections import OrderedDict

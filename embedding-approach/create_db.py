@@ -14,7 +14,6 @@ import wandb
 def create_db(image_folder, model,type, input_width, input_height, img_preprocess):
     labels = []
     embeddings = []
-    images = []
     dimensions=[]
     
     all_data=[]
@@ -30,7 +29,6 @@ def create_db(image_folder, model,type, input_width, input_height, img_preproces
                 img_path = os.path.join(image_folder,folder, img_file)
                 img = transform_image(imread(img_path), (input_width, input_height), img_preprocess)
                 labels.append(folder)
-                #images.append(wandb.Image(img))
                 embedding = model(img).numpy()[0]
                 embeddings.append(embedding)
                 all_data.append([folder, wandb.Image(img), *embedding])

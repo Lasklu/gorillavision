@@ -52,14 +52,13 @@ class TripletLoss(pl.LightningModule):
             self.backbone = vit_b_32_old(weights='DEFAULT')
         else:
             raise Exception("Invalid backbone given")
-        #self.backbone = create_inception_model(weights=Inception_V3_Weights.IMAGENET1K_V1, cutoff_classes=cutoff_classes)
-        #self.backbone = swin_v2_b(weights=Swin_V2_B_Weights)
-        #self.backbone = Swinv2Model.from_pretrained("microsoft/swinv2-tiny-patch4-window8-256")
+
         self.backbone.eval()
+
         # global average pooling over feature maps to avoid overfitting
-        #self.pooling = AdaptiveAvgPool2d((20,20))
+        self.pooling = AdaptiveAvgPool2d((20,20))
         
-        # filly connected layer to create the embedding vector
+        # fully connected layer to create the embedding vector
         self.linear = Linear(50*768, embedding_size)
     
     def forward(self, x: Tensor):
@@ -72,9 +71,7 @@ class TripletLoss(pl.LightningModule):
         #x = self.pooling(x)
         #print("shape poolin", np.shape(x))
         x = x.flatten(start_dim=1)
-        #print("shape flatteb", np.shape(x))
         x = self.linear(x)
-        #print("shape linear", np.shape(x))
         return x
 
     def prepare_data(self):
@@ -96,7 +93,10 @@ class TripletLoss(pl.LightningModule):
         print("Preparing Data completed.")
 
     def configure_optimizers(self):
-        return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=self.l2_factor)
+        if self.l2_factor != None:
+            return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08, weight_decay=self.l2_factor)
+        else:
+            return Adam(self.parameters(), lr=self.lr, betas=(0.9, 0.99), eps=1e-08)
 
     def train_dataloader(self):
         if self.sampler == "class_sampler":

@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 from numpy.random import default_rng
 
 class TripletBatchSampler(BatchSampler):
+    # Not reccomended to use
     def __init__(self, ds, batch_size, seed=123):
         self.ds = ds
         self.batch_size = batch_size
