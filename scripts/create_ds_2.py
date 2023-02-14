@@ -4,107 +4,23 @@ import random
 
 #This scripts takes defined datasets and splits them into train,test and eeval sets.
 base_path = "/scratch1/all_gorillas"
-output_path = os.path.join("/scratch1/gorilla_experiment_splits/train_test_non_distinct")
+output_path = os.path.join("/scratch1/gorilla_experiment_splits/cxl_new_eval_3")
 bristol_dataset_faces = os.path.join(base_path, 'bristol', 'face_images')
 cxl_dataset_faces = os.path.join(base_path, 'cxl', 'face_images_grouped')
 
 datasets = [
 	{
-		"name": 'bristol_all_0_75',
-		'datasets': [
-			{'dataset_path': bristol_dataset_faces,
-			'min_elements_per_id': None,
-			'train_test_split': {
-				'distinct': False,
-				'percentage': 0.7
-			}}
-		]
-	},
-	{
-		"name": 'bristol_10images_0_75',
-		'datasets': [
-			{'dataset_path': bristol_dataset_faces,
-			'min_elements_per_id': None,
-			'exact_elements_per_id': 10,
-			'train_test_split': {
-				'distinct': False,
-				'percentage': 0.7
-			}}
-		]
-	},
-	{
-		"name": 'cxl_all_0_75',
+		"name": 'cxl_all_0_75_new_3',
 		'datasets': [
 			{'dataset_path': cxl_dataset_faces,
 			'min_elements_per_id': None,
 			'train_test_split': {
-				'distinct': False,
+				'distinct': True,
 				'percentage': 0.7
 			}}
 		]
 	},
-	{
-		"name": 'cxl_greater6_0_75',
-		'datasets': [
-			{'dataset_path': cxl_dataset_faces,
-			'min_elements_per_id': 6,
-			'train_test_split': {
-				'distinct': False,
-				'percentage': 0.7
-			}}
-		]
-	},
-	{
-		"name": 'cxl-bristol_greater100_0_75',
-		'datasets': [
-			{'dataset_path': cxl_dataset_faces,
-			'min_elements_per_id': 100,
-			'train_test_split': {
-				'distinct': False,
-				'percentage': 0.7
-			}},
-			{'dataset_path': bristol_dataset_faces,
-			'min_elements_per_id': 100,
-			'train_test_split': {
-				'distinct': False,
-				'percentage': 0.7
-			}}
-		]
-	},
-	{
-		"name": 'cxl-bristol_0_75',
-		'datasets': [
-			{'dataset_path': cxl_dataset_faces,
-			'min_elements_per_id': None,
-			'train_test_split': {
-				'distinct': False,
-				'percentage': 0.7
-			}},
-			{'dataset_path': bristol_dataset_faces,
-			'min_elements_per_id': None,
-			'train_test_split': {
-				'distinct': False,
-				'percentage': 0.7
-			}}
-		]
-	},
-		{
-		"name": 'cxl-bristol_greater_6_0_75',
-		'datasets': [
-			{'dataset_path': cxl_dataset_faces,
-			'min_elements_per_id': 6,
-			'train_test_split': {
-				'distinct': False,
-				'percentage': 0.7
-			}},
-			{'dataset_path': bristol_dataset_faces,
-			'min_elements_per_id': 6,
-			'train_test_split': {
-				'distinct': False,
-				'percentage': 0.7
-			}},
-		]
-	},
+
 ]
 
 def copy_to(files, id, folder, ds_path, ds_identifier):
@@ -138,10 +54,18 @@ def split_train_test_distinct(files, percentage, min_el, ds_path, ds_identifier,
 		copy_to(files, id, "database_set", ds_path, ds_identifier)
 		return
 	
+	
 	if id in train_classes:
 		copy_to(files, id, "train", ds_path, ds_identifier)
-	else:
 		copy_to(files, id, "database_set", ds_path, ds_identifier)
+	else:
+		# inverse - percentage = amount in eval, rest in db
+		db_amount = min(len(files), 3)
+		copy_to(files[db_amount:], id, "eval", ds_path, ds_identifier)
+		copy_to(files[:db_amount], id, "database_set", ds_path, ds_identifier)
+
+		#copy_to(files[:round(len(files) * percentage)], id, "eval", ds_path, ds_identifier)
+		#copy_to(files[round(len(files) * percentage):], id, "database_set", ds_path, ds_identifier)
 
 def get_distinct_classes_split(folders_path, percentage):
 	all_classes = os.listdir(folders_path)
@@ -172,12 +96,12 @@ def main():
 			train_classes, test_classes = get_distinct_classes_split(sub_dataset['dataset_path'], sub_dataset['train_test_split']['percentage'])
 			
 			exact_elements_per_id = sub_dataset["exact_elements_per_id"] if "exact_elements_per_id" in sub_dataset else None
-			"""if exact_elements_per_id:
+			if exact_elements_per_id:
 				temp_path = os.path.join(output_path, "temp")
 				if not os.path.exists(temp_path):
 					os.mkdir(temp_path)
 					make_reduced_ds(sub_dataset, temp_path)
-					sub_dataset['dataset_path'] = temp_path"""
+					sub_dataset['dataset_path'] = temp_path
 
 			for id in os.listdir(sub_dataset['dataset_path']):
 				files = os.listdir(f"{sub_dataset['dataset_path']}/{id}")
@@ -189,20 +113,8 @@ def main():
 					split_train_test_distinct(files, sub_dataset['train_test_split']['percentage'],
 											  sub_dataset["min_elements_per_id"], sub_dataset['dataset_path'], identifier, id, train_classes)
 			
-			# create evalidation set with part of the data from test
-			if not exact_elements_per_id and sub_dataset["train_test_split"]["distinct"] == True:
-				for id in os.listdir(os.path.join(f"{output_path}/{identifier}", "database_set")):
-					files = os.listdir(os.path.join(f"{output_path}/{identifier}", "database_set", id))
-					random.shuffle(files)
-					for file_name in files[:round(len(files) * 0.3)]:
-						if not os.path.exists(os.path.join(output_path, identifier, 'eval', id)):
-							os.mkdir(os.path.join(output_path, identifier, 'eval', id))
-						file_path = os.path.join(f"{output_path}/{identifier}", "database_set", id, file_name)
-						target_path = os.path.join(output_path, identifier, 'eval', id, file_name)
-						shutil.move(file_path, target_path)
-			
-			"""if "exact_elements_per_id" in sub_dataset:
-				shutil.rmtree(os.path.join(output_path, "temp"))"""
+			if "exact_elements_per_id" in sub_dataset:
+				shutil.rmtree(os.path.join(output_path, "temp"))
 
    
 def make_folder(folder_name, folder_path):
