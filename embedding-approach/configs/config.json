@@ -1,6 +1,7 @@
 {
     "main": {
-        "path": "/data/train-all_test_cxl"
+        "path": "/data/bristol_distinct",
+        "experiment": "Class samplers comparison"
     },
     "data": {
         "path": "/data/train_test_non_distinct/cxl_all_0_75/train",
@@ -19,13 +20,13 @@
         "batch_size": 64,
         "learning_rate": 1e-5,
         "nb_epochs": 200,
-        "sampler": "ensure_positive",
+        "sampler": "class_sampler",
         "class_sampler_config": {
             "samples_per_class": 25,
             "classes_per_batch": 5
         },
         "use_augmentation": false,
-        "train_val_split_overlapping": true,
+        "train_val_split_overlapping": false,
         "augment_config": {
             "use_erase": true,
             "use_intensity": true,

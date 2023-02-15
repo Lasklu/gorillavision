@@ -17,10 +17,10 @@ with open("sweep.yaml", "r") as stream:
 sweep_id = wandb.sweep(sweep=sweep_configuration, project="triplet-approach")
 
 def main():
-    dataset_path = "/data/exp1/cxl_all_0_75"
+    dataset_path = "/data/cxl_all_0_75"
     model_save_path = os.path.join("/models", dataset_path.split("/")[-1])
     run = wandb.init()
-    nb_epochs = 500 if "cxl" in str(dataset_path) else 250
+    nb_epochs = wandb.config.epochs
     augment_config = {
         "use_erase": wandb.config.use_erase,
         "use_geometric": wandb.config.use_geometric,
@@ -47,7 +47,8 @@ def main():
                 l2_factor = wandb.config.l2_factor,
                 img_preprocess = wandb.config.img_preprocess,
                 dataset_statistics=dataset_statistics,
-                backbone = wandb.config.backbone
+                backbone = wandb.config.backbone,
+                experiment_desc=wandb.config.experiment
         )
     model = TripletLoss.load_from_checkpoint(model_path)
     logger.info(f"Model trained. Stored in: {model_path}. Creating database...")
