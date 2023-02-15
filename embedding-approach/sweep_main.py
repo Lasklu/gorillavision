@@ -10,14 +10,8 @@ from model.triplet import TripletLoss
 from score import score
 from create_db import create_db
 
-sweep_configuration = None
-with open("sweep.yaml", "r") as stream:
-    sweep_configuration = yaml.safe_load(stream)
-
-sweep_id = wandb.sweep(sweep=sweep_configuration, project="triplet-approach")
-
 def main():
-    dataset_path = "/data/cxl_all_0_75"
+    dataset_path = "/data/cxl_distinct/cxl_all_0_75"
     model_save_path = os.path.join("/models", dataset_path.split("/")[-1])
     run = wandb.init()
     nb_epochs = wandb.config.epochs
