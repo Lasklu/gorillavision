@@ -15,6 +15,7 @@ def create_db(image_folder, model,type, input_width, input_height, img_preproces
     labels = []
     embeddings = []
     dimensions=[]
+    images = []
     
     all_data=[]
     for folder in os.listdir(image_folder):
