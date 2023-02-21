@@ -19,7 +19,6 @@ def create_db(image_folder, model,type, input_width, input_height, img_preproces
     
     all_data=[]
     for folder in os.listdir(image_folder):
-        print("Folder", folder)
         if folder == 'script.sh':
             continue
         for img_file in tqdm(os.listdir(os.path.join(image_folder, folder))):

@@ -5,7 +5,7 @@ from utils.dataset import IndividualsDS
 from sklearn.model_selection import train_test_split
 from torch.optim import Adam
 from torch.utils.data import DataLoader
-from torch.nn import Linear, AdaptiveAvgPool2d
+from torch.nn import Linear, AdaptiveAvgPool2d, Dropout
 import torch
 import pandas as pd
 from torchvision.models import Inception_V3_Weights
@@ -18,8 +18,9 @@ from .inception import InceptionOutputs
 
 from utils.batch_sampler_triplet import TripletBatchSampler
 from utils.batch_sampler_ensure_positives import BatchSamplerEnsurePositives
-from utils.batch_sampler_by_class import BatchSamplerByClass
-from utils.dataset_utils import custom_train_val_split
+# from utils.batch_sampler_by_class import BatchSamplerByClass
+from utils.better_class_sampler import BatchSamplerByClass
+from utils.dataset_utils import train_val_split_distinct
 from utils.data_augmentation import DataAugmentation
 import wandb
 
@@ -42,36 +43,38 @@ class TripletLoss(pl.LightningModule):
         self.cutoff_classes = cutoff_classes
         self.l2_factor = l2_factor
         self.img_preprocess = img_preprocess
+        self.backbone_type = backbone
         num_classes=self.df["labels_numeric"].nunique()
         print("Amount of individuals", num_classes)
 
         # backbone building a feature map
         if backbone == "inception":
             self.backbone = create_inception_model(weights=Inception_V3_Weights.IMAGENET1K_V1, cutoff_classes=cutoff_classes)
+            # global average pooling over feature maps to avoid overfitting - only used for inception
+            self.pooling = AdaptiveAvgPool2d((1))
+            # fully connected layer to create the embedding vector
+            self.linear = Linear(2048, embedding_size)
         elif backbone == "vit":
             self.backbone = vit_b_32_old(weights='DEFAULT')
+            # fully connected layer to create the embedding vector
+            self.linear = Linear(50*768, embedding_size)
         else:
             raise Exception("Invalid backbone given")
 
         self.backbone.eval()
 
-        # global average pooling over feature maps to avoid overfitting
-        self.pooling = AdaptiveAvgPool2d((20,20))
-        
-        # fully connected layer to create the embedding vector
-        self.linear = Linear(50*768, embedding_size)
+        # dropout layer to prevent further overfitting
+        self.dropout = Dropout(p=0.3)
     
     def forward(self, x: Tensor):
         x = self.backbone(x)
-        #x = self.backbone(x)
-        #print("shape_backbone", np.shape(x))
         if isinstance(x, InceptionOutputs):
             x = x.logits
-        #print("shape_backbone2", np.shape(x))
-        #x = self.pooling(x)
-        #print("shape poolin", np.shape(x))
+        if self.backbone_type == "inception":
+            x = self.pooling(x)
         x = x.flatten(start_dim=1)
         x = self.linear(x)
+        # x = self.dropout(x)
         return x
 
     def prepare_data(self):
@@ -79,7 +82,7 @@ class TripletLoss(pl.LightningModule):
         if self.train_val_split_overlapping:
             train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
         else:
-            train, validate = custom_train_val_split(self.df, test_size=0.4, random_state=0, label_col_name="labels_numeric")
+            train, validate = train_val_split_distinct(self.df, test_size=0.3, random_state=0, label_col_name="labels_numeric")
         self.train_ds = IndividualsDS(train, self.img_size, self.img_preprocess)
         self.validate_ds = IndividualsDS(validate, self.img_size, self.img_preprocess)
         if self.sampler == "class_sampler":
@@ -105,7 +108,6 @@ class TripletLoss(pl.LightningModule):
             return DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=4, drop_last=True)
         elif self.sampler == "ensure_positive":
             return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
-            #return DataLoader(self.train_ds, batch_sampler=self.batch_sampler_train, num_workers=8)
         raise Exception("No sampler specified")
 
     def val_dataloader(self):
@@ -128,7 +130,6 @@ class TripletLoss(pl.LightningModule):
         labels = labels.flatten()
         outputs = self.forward(inputs)
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
-        #self.log("train/loss", loss)
         wandb.log({'train_loss': loss})
         return loss
 
@@ -143,7 +144,6 @@ class TripletLoss(pl.LightningModule):
         loss = triplet_semihard_loss(labels, outputs, 'cuda:0')
         self.log('val_loss', loss)
         wandb.log({'val_loss': loss})
-        
         return {'val_loss': loss}
     
     def validation_epoch_end(self, validationStepOutputs):

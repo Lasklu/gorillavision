@@ -21,11 +21,7 @@ def main(dataset_paths, config):
             dataset_statistics = compute_statistics(os.path.join(dataset_path, "train"), os.path.join(dataset_path, "database_set"), os.path.join(dataset_path, "eval"), dataset_type)
             logger.info(f"Dataset has the following statistics: {dataset_statistics}")
             df = load_data(os.path.join(dataset_path, "train"))
-            logger.info("Training model...")
-
-            # double epochs for cxl dataset
-            print("cxl" in str(dataset_path))
-            nb_epochs = 2*config["train"]["nb_epochs"] if "cxl" in str(dataset_path) else config["train"]["nb_epochs"] 
+            logger.info("Training model...") 
 
             model_path = train(
                     df=df,
@@ -34,7 +30,7 @@ def main(dataset_paths, config):
                     input_width=config['model']['input_width'],
                     input_height=config['model']['input_height'],
                     embedding_size=config["model"]["embedding_size"],
-                    nb_epochs=nb_epochs,
+                    nb_epochs= int(config["train"]["nb_epochs"] / 4) if "bristol" in dataset_path else config["train"]["nb_epochs"],
                     sampler=config["train"]["sampler"],
                     use_augmentation=config["train"]["use_augmentation"],
                     augment_config=config["train"]["augment_config"],

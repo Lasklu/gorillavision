@@ -1,6 +1,7 @@
 from torchvision.transforms.functional import pad, resize
 
 class FillSizePad(object):
+    # Fill image to given size with padding
     def __init__(self, img_size, fill=0, padding_mode='constant', ):
         self.fill = fill
         self.padding_mode = padding_mode

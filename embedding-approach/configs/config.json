@@ -1,10 +1,10 @@
 {
     "main": {
-        "path": "/data/bristol_distinct",
-        "experiment": "Class samplers comparison"
+        "path": "/data/cxl_distinct/",
+        "experiment": "cxl lots of epochs"
     },
     "data": {
-        "path": "/data/train_test_non_distinct/cxl_all_0_75/train",
+        "path": "/data/train_test_non_distinct/cxl_all_0_75/",
         "split_seed": 123
     },
     "model": {
@@ -17,18 +17,18 @@
         "backbone": "vit"
     },
     "train": {
-        "batch_size": 64,
+        "batch_size": 128,
         "learning_rate": 1e-5,
-        "nb_epochs": 200,
-        "sampler": "class_sampler",
+        "nb_epochs": 2000,
+        "sampler": "ensure_positive",
         "class_sampler_config": {
-            "samples_per_class": 25,
-            "classes_per_batch": 5
+            "samples_per_class": 8,
+            "classes_per_batch": 20
         },
-        "use_augmentation": false,
-        "train_val_split_overlapping": false,
+        "use_augmentation": true,
+        "train_val_split_overlapping": true,
         "augment_config": {
-            "use_erase": true,
+            "use_erase": false,
             "use_intensity": true,
             "use_geometric": true
         },

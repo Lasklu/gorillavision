@@ -4,5 +4,5 @@ with open('./keyfile') as f:
     wandb.login(key=key)
 from sweep_main import main
 
-sweep_id = "sib24e5r"
+sweep_id = "3ys0xxy7"
 wandb.agent(sweep_id=sweep_id, project="triplet-approach", function=main)

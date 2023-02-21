@@ -11,7 +11,7 @@ class DataAugmentation(nn.Module):
         self.use_intensity = config["use_intensity"]
 
         self.geometric_transforms = nn.Sequential(
-            RandomRotation(degrees=360, p=0.3),
+            # RandomRotation(degrees=360, p=0.3),
             RandomHorizontalFlip(p=0.3),
             RandomPerspective(p=0.3)
         )
