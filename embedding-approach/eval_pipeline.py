@@ -83,13 +83,11 @@ if __name__ == '__main__':
             print(config_path)
             with open(config_path) as config_buffer:    
                 config = json.loads(config_buffer.read())
-            base_path = config['main']['path']
-            dataset_paths = [os.path.join(base_path, dataset) for dataset in os.listdir(base_path)]
+            dataset_paths = config['main']['datasets']
             main(dataset_paths, config)
     else:
         config_path = os.path.join("./configs", conf_name)
         with open(config_path) as config_buffer:    
             config = json.loads(config_buffer.read())
-        base_path = config['main']['path']
-        dataset_paths = [os.path.join(base_path, dataset) for dataset in os.listdir(base_path)]
+        dataset_paths = config['main']['datasets']
         main(dataset_paths, config)

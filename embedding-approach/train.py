@@ -105,7 +105,7 @@ if __name__ == '__main__':
     with open(config_path) as config_buffer:    
         config = json.loads(config_buffer.read())
     
-    df = load_data(config["data"]["path"])
+    df = load_data(config["train"]["dataset"]["path"])
     lr = config["train"]["learning_rate"]
     batch_size = config["train"]["batch_size"]
     input_width = config['model']['input_width']

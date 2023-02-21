@@ -35,7 +35,7 @@ def main():
                 use_augmentation=wandb.config.use_augmentation,
                 augment_config=augment_config,
                 model_save_path=model_save_path,
-                train_val_split_overlapping=False,
+                train_val_split_overlapping=wandb.config.train_val_split_overlapping,
                 class_sampler_config = {},
                 cutoff_classes = wandb.config.cutoff_classes,
                 l2_factor = wandb.config.l2_factor,

@@ -1,11 +1,10 @@
 {
     "main": {
-        "path": "/data/cxl_distinct/",
-        "experiment": "cxl lots of epochs"
-    },
-    "data": {
-        "path": "/data/train_test_non_distinct/cxl_all_0_75/",
-        "split_seed": 123
+        "experiment": "My Experiment",
+        "datasets": [
+            "/data/train_test_non_distinct/cxl_all_0_75/",
+            "/data/train_test_distinct/cxl_all_0_75/"
+        ]
     },
     "model": {
         "input_width": 224,
@@ -17,9 +16,12 @@
         "backbone": "vit"
     },
     "train": {
+        "dataset": {
+            "path": "/data/train_test_non_distinct/cxl_all_0_75/"
+        },
         "batch_size": 128,
         "learning_rate": 1e-5,
-        "nb_epochs": 2000,
+        "nb_epochs": 2,
         "sampler": "ensure_positive",
         "class_sampler_config": {
             "samples_per_class": 8,
