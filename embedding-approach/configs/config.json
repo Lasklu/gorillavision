@@ -1,9 +1,13 @@
 {
     "main": {
-        "experiment": "My Experiment",
+        "experiment": "cxl>6 final splits for eval",
         "datasets": [
-            "/data/train_test_non_distinct/cxl_all_0_75/",
-            "/data/train_test_distinct/cxl_all_0_75/"
+            "/data/exp5/cxl-bigger6_final",
+            "/data/exp5/cxl-bigger6_final2",
+            "/data/exp5/cxl-bigger6_final3",
+            "/data/exp5/cxl-bigger6_final4",
+            "/data/exp5/cxl-bigger6_final5",
+            "/data/exp5/cxl-bigger6_final6"
         ]
     },
     "model": {
@@ -21,7 +25,7 @@
         },
         "batch_size": 128,
         "learning_rate": 1e-5,
-        "nb_epochs": 2,
+        "nb_epochs": 800,
         "sampler": "ensure_positive",
         "class_sampler_config": {
             "samples_per_class": 8,

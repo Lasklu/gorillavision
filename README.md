@@ -1,6 +1,6 @@
-<h1 align="center">GorillaVision</p>
+<h1 align="center">GorillaVision</h1>
 
-<h2 align="center" style=font-size:200px>An open-set re-identification system for gorillas in the wild</h1>
+<h2 align="center" style=font-size:200px>An open-set re-identification system for gorillas in the wild</h2>
 
 <a name="overview"></a>
 ## Overview

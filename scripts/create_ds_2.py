@@ -3,17 +3,17 @@ import shutil
 import random
 
 #This scripts takes defined datasets and splits them into train,test and eeval sets.
-base_path = "/scratch1/all_gorillas"
-output_path = os.path.join("/scratch1/gorilla_experiment_splits/cxl_new_eval_3")
+base_path = "/scratch1/wildlife_conservation/data/all_gorillas"
+output_path = os.path.join("/scratch1/wildlife_conservation/data/gorilla_experiment_splits/exp5/")
 bristol_dataset_faces = os.path.join(base_path, 'bristol', 'face_images')
 cxl_dataset_faces = os.path.join(base_path, 'cxl', 'face_images_grouped')
 
 datasets = [
 	{
-		"name": 'cxl_all_0_75_new_3',
+		"name": 'cxl-bigger6_final6',
 		'datasets': [
 			{'dataset_path': cxl_dataset_faces,
-			'min_elements_per_id': None,
+			'min_elements_per_id': 6,
 			'train_test_split': {
 				'distinct': True,
 				'percentage': 0.7
@@ -54,13 +54,12 @@ def split_train_test_distinct(files, percentage, min_el, ds_path, ds_identifier,
 		copy_to(files, id, "database_set", ds_path, ds_identifier)
 		return
 	
-	
 	if id in train_classes:
 		copy_to(files, id, "train", ds_path, ds_identifier)
 		copy_to(files, id, "database_set", ds_path, ds_identifier)
 	else:
 		# inverse - percentage = amount in eval, rest in db
-		db_amount = min(len(files), 3)
+		db_amount = int(len(files) * percentage)
 		copy_to(files[db_amount:], id, "eval", ds_path, ds_identifier)
 		copy_to(files[:db_amount], id, "database_set", ds_path, ds_identifier)
 
