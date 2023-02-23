@@ -8,7 +8,8 @@
             "/data/exp5/cxl-bigger6_final4",
             "/data/exp5/cxl-bigger6_final5",
             "/data/exp5/cxl-bigger6_final6"
-        ]
+        ],
+        "distinct": true
     },
     "model": {
         "input_width": 224,

@@ -16,7 +16,7 @@ from typing import Tuple
 
 def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation,augment_config,
           model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor, img_preprocess, dataset_statistics,
-          backbone, experiment_desc="-"):
+          backbone, experiment_desc="-", model_base_name):
     logger.info("Initializing Model")
     img_size: Tuple[int, int] = (input_width, input_height)
 
@@ -38,32 +38,12 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         img_size=img_size,
         img_preprocess=img_preprocess,
         backbone=backbone)
-
-    logger.info("Initializing Wandb")
-    wandb_config = {
-        "learning_rate": lr,
-        "embedding_size":embedding_size,
-        "batch_size": batch_size,
-        "max_epochs": nb_epochs,
-        "sampler": sampler,
-        "augmentation": use_augmentation,
-        "augment_config": augment_config,
-        "class_sampler_config": class_sampler_config,
-        "train_val_split_overlapping": train_val_split_overlapping,
-        "cutoff_classes": cutoff_classes,
-        "l2_factor": l2_factor,
-        "img_preprocess": img_preprocess,
-        "dataset_statistics": dataset_statistics,
-        "backbone": backbone,
-        "experiment": experiment_desc
-    }
-    wandb_logger = WandbLogger(project="triplet-approach", entity="gorilla-reid", config=wandb_config)
-    wandb_logger.watch(model, log="all")
+    wandb.watch(model, log="all")
 
     logger.info("Initializing Trainer")
     checkpointCallback = ModelCheckpoint(
         dirpath=model_save_path,
-        filename="Model_"+str(wandb.run.name)+'_{epoch}-loss-{val_loss:.50f}',
+        filename="Model_"+model_base_name+'_{epoch}-loss-{val_loss:.50f}',
         verbose=True,
         monitor='val_loss',
         mode='min')
@@ -84,11 +64,9 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         def get_loss(model_name):
             return float(model_name.split("=")[-1][:-5])
         def get_name(model_name):
-            print(model_name)
             name = model_name.split("_")[1]
-            print(name)
             return name
-        if get_name(model_name) != str(wandb.run.name):
+        if get_name(model_name) != model_base_name:
             continue
         if get_loss(model_name) < best_loss:
             best_loss = get_loss(model_name)
@@ -97,7 +75,7 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
     return os.path.join(model_save_path, best_model)
 
 if __name__ == '__main__':
-    print("Loading config...")
+    logger.info("Loading config...")
     argparser = argparse.ArgumentParser(description='Train and validate a model on any dataset')
     argparser.add_argument('-c','--conf', help='name of the configuration file in config folder', default='config.json')
     conf_name = argparser.parse_args().conf

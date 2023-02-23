@@ -30,6 +30,10 @@ def load_data(dataset_path):
     individuals_df = individuals_df[~individuals_df["labels"].isin(individuals_to_remove)]
     return individuals_df
 
+def make_crossval_splits(ds_path, distinct):
+    df = load_data(ds_path)
+
+
 def train_val_split_distinct(df, test_size=0.3, random_state=0, label_col_name="labels_numeric"):
     # split into train and val set without overlapping individiuals
     np.random.seed(random_state)

@@ -80,7 +80,7 @@ if __name__ == '__main__':
     if args.dir:
         for conf_name in os.listdir(config_folder):
             config_path = os.path.join(config_folder, conf_name)
-            print(config_path)
+            logger.info(config_path)
             with open(config_path) as config_buffer:    
                 config = json.loads(config_buffer.read())
             dataset_paths = config['main']['datasets']

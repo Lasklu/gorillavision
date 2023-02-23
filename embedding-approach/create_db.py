@@ -11,27 +11,19 @@ import numpy as np
 from utils.image import transform_image
 import wandb
 
-def create_db(image_folder, model,type, input_width, input_height, img_preprocess):
+def create_db(df_db, model, type, input_width, input_height, img_preprocess):
     labels = []
     embeddings = []
     dimensions=[]
     images = []
     
     all_data=[]
-    for folder in os.listdir(image_folder):
-        if folder == 'script.sh':
-            continue
-        for img_file in tqdm(os.listdir(os.path.join(image_folder, folder))):
-            _, ext = os.path.splitext(img_file)
-            if ext not in [".png", ".jpg", ".jpeg"]:
-                continue
-            with torch.no_grad():
-                img_path = os.path.join(image_folder,folder, img_file)
-                img = transform_image(imread(img_path), (input_width, input_height), img_preprocess)
-                labels.append(folder)
-                embedding = model(img).numpy()[0]
-                embeddings.append(embedding)
-                all_data.append([folder, wandb.Image(img), *embedding])
+    for index, row in df_db.iterrows():
+        with torch.no_grad():
+            img = transform_image(row["images"], (input_width, input_height), img_preprocess)
+            embedding = model(img).numpy()[0]
+            embeddings.append(embedding)
+            all_data.append([row["labels"], wandb.Image(img), *embedding])
     for idx, _ in enumerate(embeddings[0]):
         dimensions.append(f"dim_{idx}")            
     embeddings_data = pd.DataFrame(data=all_data, columns=["target", "image", *dimensions])

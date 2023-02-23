@@ -20,7 +20,7 @@ import wandb
 import json
 from utils.image import transform_image
 
-def score(model, image_folder, labels, embeddings, images, input_width, input_height, img_preprocess):
+def score(df_eval, model, labels, embeddings, images, input_width, input_height, img_preprocess):
     # setup knn classifier based in labels and embeddings from "db", k=5 default
     knn_classifier = neighbors.KNeighborsClassifier()
     knn_classifier.fit(embeddings, labels)
@@ -34,33 +34,23 @@ def score(model, image_folder, labels, embeddings, images, input_width, input_he
     for idx, _ in enumerate(embeddings[0]):
         dimensions.append(f"dim_{idx}")
     all_data = []
-    for folder in tqdm(os.listdir(image_folder)):
-        if os.path.isdir(os.path.join(image_folder, folder)):
-            individual_name = folder
-            for img_file in tqdm(os.listdir(os.path.join(image_folder, folder))):
-                label, ext = os.path.splitext(img_file)
-                if ext not in [".png", ".jpg", ".jpeg"]:
-                    continue
-                img = transform_image(imread(os.path.join(image_folder, folder, img_file)), (input_width, input_height), img_preprocess)
-                with torch.no_grad():
-                    predicted_embedding = model(img).numpy()
-                    prediction = knn_classifier.predict(predicted_embedding)
-                    neighbour_scores = knn_classifier.predict_proba(predicted_embedding)[0]
-                    predicted_embeddings.append(predicted_embedding)
-                    test_labels.append(individual_name)
-                    predicted_labels.append(prediction)
-                    predicted_scores.append(neighbour_scores)
-                    all_data.append([individual_name, prediction, wandb.Image(img), *np.squeeze(predicted_embedding)])
+    for index, row in df_eval.iterrows():
+        img = transform_image(row["images"], (input_width, input_height), img_preprocess)
+        with torch.no_grad():
+                predicted_embedding = model(img).numpy()
+                prediction = knn_classifier.predict(predicted_embedding)
+                neighbour_scores = knn_classifier.predict_proba(predicted_embedding)[0]
+                predicted_embeddings.append(predicted_embedding)
+                test_labels.append(row["labels"])
+                predicted_labels.append(prediction)
+                predicted_scores.append(neighbour_scores)
+                all_data.append([row["labels"], prediction, wandb.Image(img), *np.squeeze(predicted_embedding)])
 
     # Log and calculate metrics
     df = pd.DataFrame(columns=[*["target", "predicted", "img"], *dimensions], data=all_data)
-    wandb.log({"val_embeddings": df})
-    all_unique_labels = list(set(labels))
-    all_unique_labels.sort()
-    num_images_correct = sum([1 for idx in range(0, len(test_labels)) if test_labels[idx] == predicted_labels[idx]])
-    print(f"correctly classified {num_images_correct}/{len(test_labels)} images")
-    metrics = compute_prediction_metrics(test_labels, predicted_labels, predicted_scores, all_unique_labels)
-    print(metrics)
+    wandb.log({"eval_embeddings": df})
+    metrics = compute_prediction_metrics(test_labels, predicted_labels, predicted_scores, list(set(labels)))
+    logger.info(metrics)
     for metric, value in metrics.items():
         wandb.summary[metric] = value
     wandb.finish()
