@@ -1,13 +1,13 @@
 import cv2
 import numpy as np
 
-from detector.detect import detect
-from detector.utils.plots import plot_one_box
+from detector.detector.detect import detect
+from detector.detector.utils.plots import plot_one_box
 from utils.image import transform_image
 
 def main(video_path, stageI_model_path, stageII_model_path, db_folder):
 
-    res_stageI = detect("video_path", stageI_model_path, "0")
+    res_stageI = detector.detect("video_path", stageI_model_path, "0")
     video_cap = cv2.VideoCapture('video_path')
 
     max_prediction_index = res_stageI.argmax(axis=0)[1]

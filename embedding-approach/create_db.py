@@ -44,7 +44,7 @@ if __name__ == '__main__':
     argparser.add_argument('-c','--conf', help='name of the configuration file in config folder', default='config.json')
     args = argparser.parse_args()
     config_path = os.path.join("./configs", args.conf)
-    with open(config_path) as config_buffer:    
+    with open(config_path) as config_buffer:
         config = json.loads(config_buffer.read())
     image_folder = config["create_db"]["image_folder"]
     model=TripletLoss.load_from_checkpoint(config["create_db"]["model_path"])

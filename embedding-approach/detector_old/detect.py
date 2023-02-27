@@ -22,7 +22,6 @@ def detect(source, weights, device_num):
     save_img = True  # save inference images
     webcam = False
 
-
     # Initialize
     set_logging()
     device = select_device(device_num)
