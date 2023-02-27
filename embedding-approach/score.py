@@ -19,6 +19,7 @@ import os
 import wandb
 import json
 from utils.image import transform_image
+from utils.logger import logger
 
 def score(model, image_folder, labels, embeddings, images, input_width, input_height, img_preprocess):
     # setup knn classifier based in labels and embeddings from "db", k=5 default
@@ -53,6 +54,8 @@ def score(model, image_folder, labels, embeddings, images, input_width, input_he
                     all_data.append([individual_name, prediction, wandb.Image(img), *np.squeeze(predicted_embedding)])
 
     # Log and calculate metrics
+    classes_eval = list(set(test_labels))
+    print("Classes for eval: ", classes_eval)
     df = pd.DataFrame(columns=[*["target", "predicted", "img"], *dimensions], data=all_data)
     wandb.log({"val_embeddings": df})
     all_unique_labels = list(set(labels))
@@ -60,7 +63,7 @@ def score(model, image_folder, labels, embeddings, images, input_width, input_he
     num_images_correct = sum([1 for idx in range(0, len(test_labels)) if test_labels[idx] == predicted_labels[idx]])
     print(f"correctly classified {num_images_correct}/{len(test_labels)} images")
     metrics = compute_prediction_metrics(test_labels, predicted_labels, predicted_scores, all_unique_labels)
-    print(metrics)
+    print("Run metrics:", metrics)
     for metric, value in metrics.items():
         wandb.summary[metric] = value
     wandb.finish()

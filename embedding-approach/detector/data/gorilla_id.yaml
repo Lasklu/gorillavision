@@ -1,0 +1,7 @@
+train: /data/train
+test: /data/test
+val: /data/val
+ 
+# Classes
+nc: 7  # number of classes
+names: ['Afia', 'Ayana', 'Jock', 'Kala', 'Kera', 'Kukuena', 'Touni']  # class names

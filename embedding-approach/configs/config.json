@@ -1,14 +1,8 @@
 {
     "main": {
-        "experiment": "cxl>6 final splits for eval",
-        "datasets": [
-            "/data/exp5/cxl-bigger6_final",
-            "/data/exp5/cxl-bigger6_final2",
-            "/data/exp5/cxl-bigger6_final3",
-            "/data/exp5/cxl-bigger6_final4",
-            "/data/exp5/cxl-bigger6_final5",
-            "/data/exp5/cxl-bigger6_final6"
-        ]
+        "experiment": "conf mat cxl",
+        "datasets": [],
+        "datasets_folder": "/data/k-folds2/"
     },
     "model": {
         "input_width": 224,
@@ -25,7 +19,7 @@
         },
         "batch_size": 128,
         "learning_rate": 1e-5,
-        "nb_epochs": 800,
+        "nb_epochs": 600,
         "sampler": "ensure_positive",
         "class_sampler_config": {
             "samples_per_class": 8,
@@ -41,14 +35,14 @@
         "l2_factor": null
     },
     "predict": {
-        "db_path": "/gorilla-reidentification/embedding-approach/database/bristol",
-        "model_path": "/gorilla-reidentification/embedding-approach/models_saved/run1/firm-disco-44-epoch=283-val_loss=0.00.ckpt",
-        "img_folder": "/data/train_test/test/",
+        "db_path": "/data/db/",
+        "model_path": "/models/cxl_all_0_75_final5",
+        "img_folder": "/data/experiments/exp3/cxl_all_0_75_final5/eval",
         "n_neighbors": 5
     },
     "create_db": {
-        "image_folder": "/data/data/test",
-        "db_path": "/gorilla-reidentification/embedding-approach/database",
-        "model_path": "/data/models/wandering-eon-36-epoch=396-val_loss=0.01.ckpt"
+        "image_folder": "/data/experiments/exp3/cxl_all_0_75_final5/database_set",
+        "db_path": "/data/db/",
+        "model_path": "/models/cxl_all_0_75_final5"
     }
 }

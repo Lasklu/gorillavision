@@ -23,6 +23,8 @@ def main(dataset_paths, config):
             df = load_data(os.path.join(dataset_path, "train"))
             logger.info("Training model...") 
 
+            nb_epochs = 250 if "bristol" in dataset_path.lower() else config["train"]["nb_epochs"]
+
             model_path = train(
                     df=df,
                     lr=config["train"]["learning_rate"],
@@ -30,7 +32,7 @@ def main(dataset_paths, config):
                     input_width=config['model']['input_width'],
                     input_height=config['model']['input_height'],
                     embedding_size=config["model"]["embedding_size"],
-                    nb_epochs= int(config["train"]["nb_epochs"] / 4) if "bristol" in dataset_path else config["train"]["nb_epochs"],
+                    nb_epochs= nb_epochs,
                     sampler=config["train"]["sampler"],
                     use_augmentation=config["train"]["use_augmentation"],
                     augment_config=config["train"]["augment_config"],
@@ -69,6 +71,22 @@ def main(dataset_paths, config):
     except Exception as Argument:
         logger.exception("Sorry, but an error occured. Seems like the gorillas do not want to be identified: Fix your code;)")
 
+def get_dataset_paths(config):
+    if "datasets" in config["main"] and len(config["main"]["datasets"]) != 0 and config["main"]["datasets"] != None:
+        return config["main"]["datasets"]
+    elif "datasets_folder" in config["main"] and config["main"]["datasets_folder"] != None:
+        base_path = config["main"]["datasets_folder"]
+        print(config["main"]["datasets_folder"])
+        return [os.path.join(base_path, dataset) for dataset in os.listdir(base_path)]
+    else:
+        raise Exception("No dataset specified in config")
+
+def run_config(conf_name):
+    config_path = os.path.join("./configs", conf_name)
+    with open(config_path) as config_buffer:    
+        config = json.loads(config_buffer.read())
+    dataset_paths = get_dataset_paths(config)
+    main(dataset_paths, config)
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser()
@@ -79,15 +97,6 @@ if __name__ == '__main__':
     config_folder = args.dir
     if args.dir:
         for conf_name in os.listdir(config_folder):
-            config_path = os.path.join(config_folder, conf_name)
-            print(config_path)
-            with open(config_path) as config_buffer:    
-                config = json.loads(config_buffer.read())
-            dataset_paths = config['main']['datasets']
-            main(dataset_paths, config)
+            run_config(conf_name)
     else:
-        config_path = os.path.join("./configs", conf_name)
-        with open(config_path) as config_buffer:    
-            config = json.loads(config_buffer.read())
-        dataset_paths = config['main']['datasets']
-        main(dataset_paths, config)
+        run_config(conf_name)

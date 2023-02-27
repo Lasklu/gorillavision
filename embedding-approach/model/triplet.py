@@ -22,6 +22,7 @@ from utils.batch_sampler_ensure_positives import BatchSamplerEnsurePositives
 from utils.better_class_sampler import BatchSamplerByClass
 from utils.dataset_utils import train_val_split_distinct
 from utils.data_augmentation import DataAugmentation
+from utils.logger import logger
 import wandb
 
 class TripletLoss(pl.LightningModule):
@@ -83,6 +84,10 @@ class TripletLoss(pl.LightningModule):
             train, validate = train_test_split(self.df, test_size=0.3, random_state=0, stratify=self.df['labels_numeric'])
         else:
             train, validate = train_val_split_distinct(self.df, test_size=0.3, random_state=0, label_col_name="labels_numeric")
+        train_classes = train["labels"].unique()
+        val_classes = validate["labels"].unique()
+        print("Classes for train: ", train_classes)
+        print("Classes for val: ", train_classes)
         self.train_ds = IndividualsDS(train, self.img_size, self.img_preprocess)
         self.validate_ds = IndividualsDS(validate, self.img_size, self.img_preprocess)
         if self.sampler == "class_sampler":
