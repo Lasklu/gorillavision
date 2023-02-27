@@ -1,0 +1,7 @@
+train: /data/wildlife_individual_faces/train
+val: /data/wildlife_individual_faces/val
+test: /data/wildlife_individual_faces/test
+ 
+# Classes
+nc: 18  # number of classes
+names: ['AY', 'DU', 'ES', 'GA', 'GR', 'HU', 'JB', 'JP', 'ME', 'MU', 'NN', 'OE', 'PL', 'PV', 'US', 'YE', 'TU', 'ZU']  # class names
