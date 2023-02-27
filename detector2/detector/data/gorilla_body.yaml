@@ -1,8 +1,0 @@
-#train: /data/gorilla_bodys/all_data/train
-train: /data/gorillas_dante/gorilla_bodys_noid/train
-val: /data/gorillas_dante/gorilla_bodys_noid/val_2
-test: /data/gorillas_dante/gorilla_bodys_noid/test
- 
-# Classes
-nc: 1  # number of classes
-names: ['gorilla_body']  # class names
