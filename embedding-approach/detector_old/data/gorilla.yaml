@@ -1,7 +1,0 @@
-train: /data/test_train_val/train
-val: /data/test_train_val/val
-test: /data/test_train_val/test
- 
-# Classes
-nc: 1  # number of classes
-names: ['gorilla']  # class names
