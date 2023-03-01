@@ -43,7 +43,7 @@ class GorillaVision():
 
     def predict_all(self):
         for file_path in self.file_path:
-            predict_vilde(file_path)
+            predict_video(file_path)
             """if is_video(file_path):
                 predict_video(file_path)
             elif is_img(file_path):
@@ -87,10 +87,11 @@ class GorillaVision():
 
         face_tracks = join_tracks(face_tracks, identities)
         # body_tracks_identities = map_body_to_faceID(body_tracks, face_tracks)
-        self.save_as_video(body_tracks, body_tracks.keys())
+        out_path = os.path.join(self.out_path, "out1.avi")
+        self.save_as_video(body_tracks, body_tracks.keys()), out_path
         self.video_cap.release()
 
-    def save_as_video(self, tracks, track_identities):
+    def save_as_video(self, tracks, track_identities, out_path):
         video_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
         fps = video_cap.get(cv2.CAP_PROP_FPS)
         w = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -131,5 +132,5 @@ if __name__ == '__main__':
     db_folder = "/data/models/db"
     out_path = "/data/predictions"
 
-    model = GorillaVision(files, body_model_path, face_model_path, db_folder, out_folder)
+    model = GorillaVision(files, body_model_path, face_model_path, db_folder, out_path)
     model.predict_all()
