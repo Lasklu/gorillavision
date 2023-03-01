@@ -16,7 +16,8 @@ def main(video_path, stageI_model_path, stageII_model_path, db_folder, out_path)
     res_stageI = detect(video_path, stageI_model_path, "0", 640)
     res_stageI = np.array(res_stageI)
 
-    # ToDo create track for each detected individual
+    # ToDo replace and implement tracks
+    res_stageI = res_stageI[:, :, :1]
 
     video_cap = cv2.VideoCapture(video_path)
 
@@ -60,10 +61,10 @@ def main(video_path, stageI_model_path, stageII_model_path, db_folder, out_path)
     video_cap.release()
 
 if __name__ == '__main__':
-    vid_path = "/data/video2.mp4"
+    vid_path = "/data/video3.MP4"
     model1_path = "/gorilla-reidentification/detector/src/runs/best_weights/bristol_face_detection_best.pt"
     model2_path = ""
     db_folder = ""
-    out_path = "/data/video1_predicted.MP4"
+    out_path = "/data/video_predicted.MP4"
 
     main(vid_path, model1_path, model2_path, db_folder, out_path)

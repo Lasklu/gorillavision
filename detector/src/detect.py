@@ -105,12 +105,13 @@ def detect(source, weights, device_num, imgsz):
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
 
+                frame_dets = []
                 for *xyxy, conf, cls in reversed(det):
                     bbox = [v.item() for v in [*xyxy]]
-                    total_res.append([cls.item(), conf.item(), *bbox])
-                print(conf.item())
+                    frame_dets.append([cls.item(), conf.item(), *bbox])
+                total_res.append(frame_dets)
             else:
-                total_res.append([0,0,0,0,0,0])
+                total_res.append([[1,0,0,0,0,0]])
 
             # Print time (inference + NMS)
             print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
