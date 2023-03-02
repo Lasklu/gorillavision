@@ -8,3 +8,4 @@ torchmetrics
 wandb
 kornia
 seaborn
+tensorflow
