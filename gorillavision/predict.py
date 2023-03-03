@@ -10,6 +10,7 @@ from detect import detect
 from utils.plots import plot_one_box
 from gorillavision.utils.image import transform_image
 from gorillavision.model.triplet import TripletLoss
+from gorillavision.utils.logger import logger
 
 from  bridge_wrapper import *
 from detection_helpers import *
@@ -19,6 +20,7 @@ from prediction_utils import *
 class GorillaVision:
 
     def __init__(self, file_paths, face_detection_model_path, body_detection_model_path, stageII_model_path, db_folder, out_folder):
+        logger.info("Loading models")
         self.file_paths = file_paths
         self.out_folder = out_folder
 
@@ -43,6 +45,7 @@ class GorillaVision:
         self.knn_classifier.fit(db_embeddings, db_labels)
 
     def predict_all(self):
+        logger.info("Starting predictions")
         for file_path in self.file_paths:
             if is_video(file_path):
                 self.predict_video(file_path)
@@ -50,6 +53,7 @@ class GorillaVision:
                 self.predict_img(file_path)
             else:
                 raise Exception("Trying to predict unknown file type")
+        logger.info(f"All predictions completed. You can find the results under {self.out_folder}")
             
     def predict_identity(self, img):
         img = transform_image(img, self.identity_model_imgsz, "crop")
@@ -59,6 +63,7 @@ class GorillaVision:
             return predicted_id[0]
 
     def predict_img(self, img_path):
+        logger.info(f"Predicting image: {img_path}")
         full_img = cv2.imread(img_path)
         detector_res = self.detector_face.detect(full_img, plot_bb = False)
         if len(detector_res) != 0:
@@ -78,6 +83,7 @@ class GorillaVision:
         for bbox, identity in zip(bboxes, results):
             draw_label(full_img, bbox, identity, (255,0,0))
         out_path = os.path.join(self.out_folder, os.path.basename(img_path))
+        logger.info(f"Predictions completed. Saving results under: {out_path}")
         cv2.imwrite(out_path, full_img)
 
         
@@ -91,6 +97,7 @@ class GorillaVision:
         return cropped_img
 
     def predict_video(self, video_path):
+        logger.info(f"Predicting video: {video_path}")
         self.video_cap = cv2.VideoCapture(video_path)
         frame_results_body = self.tracker_body.track_video(video_path, output=None, show_live = False, skip_frames = 0, count_objects = True, verbose=1)
         frame_results_face = self.tracker_face.track_video(video_path, output=None, show_live = False, skip_frames = 0, count_objects = True, verbose=1)
@@ -98,10 +105,12 @@ class GorillaVision:
         face_tracks = make_tracks(frame_results_face)
 
         identities = {}
+        # Predict identity on top-5 bbox scores of frames in track
         for track_key in face_tracks.keys():
             face_track = face_tracks[track_key]
             amount_to_select = min(len(face_track), 5)
-            selection = np.random.choice(face_track, amount_to_select, replace=False)
+            sorted_track = sorted(face_track, key=lambda e: e["confidence"], reverse=True)
+            selection = sorted_track[:5]
             imgs = [self.crop_to_bbox(self.get_img_at_frame(res["frame_idx"]), [int(v) for v in res["bbox"][0]]) for res in selection]
             predictions = [self.predict_identity(img) for img in imgs]
             majority_element = max(set(predictions), key=predictions.count)
@@ -112,6 +121,7 @@ class GorillaVision:
         # body_tracks_identities = map_body_to_faceID(body_tracks, face_tracks)
         # self.save_as_video(body_tracks, body_tracks_identities, out_path)
         out_path = os.path.join(self.out_folder, os.path.splitext(str(os.path.basename(video_path)))[0] + ".avi")
+        logger.info(f"Predictions completed. Saving results under: {out_path}")
         self.save_as_video(face_tracks, out_path)
         self.video_cap.release()
 
@@ -125,7 +135,6 @@ class GorillaVision:
 
         frame_count = 0
         total_boxes = 0
-        colors = [(255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255), (0,128,0), (128,0,128), (245,222,179)]
         while True:
             ret, frame = self.video_cap.read()
             if not ret:
@@ -135,11 +144,9 @@ class GorillaVision:
                 if len(data) > 0:
                     data = data[0]
                     bbox = [int(v) for v in data["bbox"][0]]
-                    draw_label(frame, bbox, track_id, colors[i])
-                    
-            res = np.asarray(frame)
-            res = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            vid_writer.write(res)
+                    draw_label(frame, bbox, track_id, COLORS[i%len(colors)])
+
+            vid_writer.write(frame)
             frame_count += 1
 
 

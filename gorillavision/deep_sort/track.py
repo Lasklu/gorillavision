@@ -73,6 +73,7 @@ class Track:
         self.time_since_update = 0
 
         self.state = TrackState.Tentative
+        self.confidences = []
         self.features = []
         if feature is not None:
             self.features.append(feature)
@@ -95,6 +96,9 @@ class Track:
         ret[2] *= ret[3]
         ret[:2] -= ret[2:] / 2
         return ret
+
+    def get_current_bbox_confidence(self):
+        return self.confidences[-1]
 
     def to_tlbr(self):
         """Get current position in bounding box format `(min x, miny, max x,
@@ -142,6 +146,7 @@ class Track:
         self.mean, self.covariance = kf.update(
             self.mean, self.covariance, detection.to_xyah())
         self.features.append(detection.feature)
+        self.confidences.append(detection.get_confidence())
 
         self.hits += 1
         self.time_since_update = 0

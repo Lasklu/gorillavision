@@ -3,6 +3,7 @@ import os
 
 VIDEO_FORMATS = [".mp4", ".avi",]
 IMAGE_FORMATS = [".png", ".jpg", ".jpeg"]
+COLORS = [(255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255), (0,128,0), (128,0,128), (245,222,179)]
 
 def make_tracks(frame_results):
     tracks = {}
@@ -12,7 +13,8 @@ def make_tracks(frame_results):
             track_id = result[1]
             item = {
                 "frame_idx": idx,
-                "bbox": result[2:5],
+                "confidence": result[2],
+                "bbox": result[3:6],
                 "class": result[0],
             }
             if track_id not in tracks:
