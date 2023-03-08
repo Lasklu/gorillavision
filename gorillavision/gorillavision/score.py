@@ -21,7 +21,7 @@ import json
 from utils.image import transform_image
 from utils.logger import logger
 
-def score(model, image_folder, labels, embeddings, images, input_width, input_height, img_preprocess):
+def score(model, image_folder, labels, embeddings, input_width, input_height, img_preprocess):
     # setup knn classifier based in labels and embeddings from "db", k=5 default
     knn_classifier = neighbors.KNeighborsClassifier()
     knn_classifier.fit(embeddings, labels)
@@ -80,7 +80,11 @@ if __name__ == "__main__":
     with open(config_path) as config_buffer:    
         config = json.loads(config_buffer.read())
     model_path = config['predict']['model_path']
+    model = TripletLoss.load_from_checkpoint(model_path)
     image_folders = config["predict"]["img_folder"]
     labels = np.load(os.path.join(config["predict"]["db_path"],'labels.npy'))
     embeddings = np.load(os.path.join(config["predict"]["db_path"],'embeddings.npy'))
-    predict(model_path, image_folders, labels, embeddings)
+    input_width = config['model']['input_width'],
+    input_height = config['model']['input_height'],
+    img_preprocess = config['model']["img_preprocess"]
+    predict(model, image_folders, labels, embeddings, input_width, input_height, img_preprocess)

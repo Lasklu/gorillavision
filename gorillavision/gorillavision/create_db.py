@@ -11,11 +11,10 @@ import numpy as np
 from utils.image import transform_image
 import wandb
 
-def create_db(image_folder, model,type, input_width, input_height, img_preprocess):
+def create_db(image_folder, model, type, input_width, input_height, img_preprocess):
     labels = []
     embeddings = []
     dimensions=[]
-    images = []
     
     all_data=[]
     for folder in os.listdir(image_folder):
@@ -37,7 +36,7 @@ def create_db(image_folder, model,type, input_width, input_height, img_preproces
     embeddings_data = pd.DataFrame(data=all_data, columns=["target", "image", *dimensions])
     wandb.log({f"{type}_embeddings": embeddings_data})
     
-    return np.array(labels), np.array(embeddings), np.array(images)
+    return np.array(labels), np.array(embeddings)
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser()
@@ -50,6 +49,6 @@ if __name__ == '__main__':
     model=TripletLoss.load_from_checkpoint(config["create_db"]["model_path"])
     input_width= config['model']['input_width']
     input_height=config['model']['input_height']
-    labels, embeddings = create_db(image_folder,model,input_width,input_height)
+    labels, embeddings = create_db(image_folder, model, "database_set", input_width,input_height, config['model']["img_preprocess"])
     np.save(os.path.join(config["create_db"]["db_path"], "labels.npy"), np.array(labels))
     np.save(os.path.join(config["create_db"]["db_path"], "embeddings.npy"), np.array(embeddings))
