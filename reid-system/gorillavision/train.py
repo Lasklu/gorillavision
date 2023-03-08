@@ -84,15 +84,16 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         def get_loss(model_name):
             return float(model_name.split("=")[-1][:-5])
         def get_name(model_name):
+            print(model_name)
             name = model_name.split("_")[1]
+            print(name)
             return name
         if get_name(model_name) != str(wandb.run.name):
             continue
         if get_loss(model_name) < best_loss:
             best_loss = get_loss(model_name)
             best_model = model_name
-    
-    logger.info(f"Best model: {best_model}")
+
     return os.path.join(model_save_path, best_model)
 
 if __name__ == '__main__':
@@ -123,3 +124,5 @@ if __name__ == '__main__':
     backbone = config["model"]["backbone"]
     train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation, augment_config,
           model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor, img_preprocess, None, backbone)
+
+    

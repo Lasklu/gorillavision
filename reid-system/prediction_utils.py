@@ -25,12 +25,23 @@ def make_tracks(frame_results):
     return tracks
 
 def join_tracks(tracks, identities):
+    print(tracks.keys())
+    print(identities)
     new_tracks = {}
     unknown_count = 0
     for track_id in tracks.keys():
+        print(track_id)
         if track_id in identities:
             identity = identities[track_id]
+            print(identity)
             if identity in new_tracks:
+                # ugly validation for testint purposes
+                for f in tracks[track_id]:
+                    for f2 in new_tracks[identity]:
+                        if f["frame_idx"] == f2["frame_idx"]:
+                            print(f)
+                            print(f2)
+                            raise Exception("Duplicate individual detected")
                 new_tracks[identity] += tracks[track_id]
             else:
                 new_tracks[identity] = tracks[track_id]
