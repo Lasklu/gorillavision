@@ -6,18 +6,15 @@ import numpy as np
 from sklearn import neighbors
 from PIL import Image
 
-sys.path.append('./tracker')
-sys.path.append('./gorillavision')
-
-from tracker.detect import detect
-from tracker.utils.plots import plot_one_box
+from detect import detect
+from utils.plots import plot_one_box
 from gorillavision.utils.image import transform_image
 from gorillavision.model.triplet import TripletLoss
 from gorillavision.utils.logger import logger
 
-from  tracker.bridge_wrapper import *
-from tracker.detection_helpers import *
-from tracker.tracking_helpers import *
+from  bridge_wrapper import *
+from detection_helpers import *
+from tracking_helpers import *
 from prediction_utils import *
 
 class GorillaVision:
@@ -33,8 +30,8 @@ class GorillaVision:
         self.detector_body.load_model(body_detection_model_path)
 
         if contains_video(self.file_paths):
-            self.tracker_face = YOLOv7_DeepSORT(reID_model_path="./tracker/deep_sort/model_weights/mars-small128.pb", detector=self.detector_face)
-            self.tracker_body = YOLOv7_DeepSORT(reID_model_path="./tracker/deep_sort/model_weights/mars-small128.pb", detector=self.detector_body)
+            self.tracker_face = YOLOv7_DeepSORT(reID_model_path="./deep_sort/model_weights/mars-small128.pb", detector=self.detector_face)
+            self.tracker_body = YOLOv7_DeepSORT(reID_model_path="./deep_sort/model_weights/mars-small128.pb", detector=self.detector_body)
             self.video_cap = None
 
         self.init_identity_model(stageII_model_path, db_folder)
@@ -154,7 +151,7 @@ class GorillaVision:
 
 
 if __name__ == '__main__':
-    files = ["/data/demo/data/HU22.png", "/data/demo/data/RC01.png", "/data/demo/data/groupHU.MP4"]
+    files = ["/data/demo/data/HU22.png", "/data/demo/data/RC01.png", "/data/demo/data/video1.MP4"]
     body_model_path = "/data/demo/models/yolov7_body_model.pt"
     face_model_path = "/data/demo/models/yolov7_face_model.pt"
     model2_path = "/data/demo/models/identification_model.ckpt"

@@ -1,8 +1,8 @@
 {
     "main": {
         "experiment": "conf mat cxl",
-        "datasets": ["/data/"],
-        "datasets_folder": null
+        "datasets": [],
+        "datasets_folder": "/data/k-folds2/"
     },
     "model": {
         "input_width": 224,

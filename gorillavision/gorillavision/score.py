@@ -64,9 +64,6 @@ def score(model, image_folder, labels, embeddings, images, input_width, input_he
     print(f"correctly classified {num_images_correct}/{len(test_labels)} images")
     metrics = compute_prediction_metrics(test_labels, predicted_labels, predicted_scores, all_unique_labels)
     print("Run metrics:", metrics)
-    wandb.log({"conf_mat" : wandb.plot.confusion_matrix(probs=None,
-                        y_true=test_labels, preds=predicted_labels)})
-
     for metric, value in metrics.items():
         wandb.summary[metric] = value
     wandb.finish()
