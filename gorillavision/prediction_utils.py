@@ -25,14 +25,30 @@ def make_tracks(frame_results):
     return tracks
 
 def join_tracks(tracks, identities):
+    print(tracks.keys())
+    print(identities)
     new_tracks = {}
-    for track_key in identities.keys():
-        identity = identities[track_key]
-        if identity not in new_tracks:
-            new_tracks[identity] = tracks[track_key]
+    unknown_count = 0
+    for track_id in tracks.keys():
+        print(track_id)
+        if track_id in identities:
+            identity = identities[track_id]
+            print(identity)
+            if identity in new_tracks:
+                # ugly validation for testint purposes
+                for f in tracks[track_id]:
+                    for f2 in new_tracks[identity]:
+                        if f["frame_idx"] == f2["frame_idx"]:
+                            print(f)
+                            print(f2)
+                            raise Exception("Duplicate individual detected")
+                new_tracks[identity] += tracks[track_id]
+            else:
+                new_tracks[identity] = tracks[track_id]
         else:
-            new_tracks[identity] += tracks[track_key]
-    
+            new_tracks[f"unknown-{unknown_count}"] = tracks[track_id]
+            unknown_count += 1
+
     return new_tracks
 
 def is_img(file_path):

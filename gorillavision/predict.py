@@ -108,7 +108,7 @@ class GorillaVision:
         # Predict identity on top-5 bbox scores of frames in track
         for track_key in face_tracks.keys():
             face_track = face_tracks[track_key]
-            amount_to_select = min(len(face_track), 5)
+            amount_to_select = min(len(face_track), 10)
             sorted_track = sorted(face_track, key=lambda e: e["confidence"], reverse=True)
             selection = sorted_track[:5]
             imgs = [self.crop_to_bbox(self.get_img_at_frame(res["frame_idx"]), [int(v) for v in res["bbox"][0]]) for res in selection]
@@ -116,16 +116,16 @@ class GorillaVision:
             majority_element = max(set(predictions), key=predictions.count)
             identities[track_key] = majority_element
 
-        face_tracks = join_tracks(face_tracks, identities)
+        # face_tracks = join_tracks(face_tracks, identities) -> Not working since predictions not good enough
         # ToDo: map faces to the corresponding body, to have a nicer vizualization over the body tracks
         # body_tracks_identities = map_body_to_faceID(body_tracks, face_tracks)
-        # self.save_as_video(body_tracks, body_tracks_identities, out_path)
+        # self.save_as_video(body_tracks, out_path)
         out_path = os.path.join(self.out_folder, os.path.splitext(str(os.path.basename(video_path)))[0] + ".avi")
         logger.info(f"Predictions completed. Saving results under: {out_path}")
-        self.save_as_video(face_tracks, out_path)
+        self.save_as_video(face_tracks, identities, out_path)
         self.video_cap.release()
 
-    def save_as_video(self, tracks, out_path):
+    def save_as_video(self, tracks, identitites, out_path):
         self.video_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
         fps = self.video_cap.get(cv2.CAP_PROP_FPS)
         w = int(self.video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -144,7 +144,7 @@ class GorillaVision:
                 if len(data) > 0:
                     data = data[0]
                     bbox = [int(v) for v in data["bbox"][0]]
-                    draw_label(frame, bbox, track_id, COLORS[i%len(colors)])
+                    draw_label(frame, bbox, identitites[track_id], COLORS[i%len(COLORS)])
 
             vid_writer.write(frame)
             frame_count += 1
