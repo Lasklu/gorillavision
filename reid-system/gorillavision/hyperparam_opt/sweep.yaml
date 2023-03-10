@@ -1,0 +1,40 @@
+program: sweep.py
+method: bayes
+name: sweep
+metric:
+  goal: minimize
+  name: val_loss
+parameters:
+  batch_size: 
+    value: [32, 64, 128, 180]
+  lr:
+    min: 0.00001
+    max: 0.1
+  l2_factor:
+    value: null
+  input_width: 
+    value: 224
+  input_height:
+    value: 224
+  embedding_size:
+    value: 256
+  cutoff_classes: 
+    value: True
+  img_preprocess: 
+    value: "crop"
+  backbone: 
+    value: "vit"
+  use_augmentation: 
+    value: True
+  use_erase:
+    values: [true, false]
+  use_intensity:
+    values: [true, false]
+  use_geometric:
+    values: [true, false]
+  experiment: 
+    value: "sweep"
+  epochs:
+    values: [200, 400, 600, 800, 1000]
+  train_val_split_overlapping:
+    values: [true, false]

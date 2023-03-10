@@ -1,0 +1,33 @@
+# Usage: pip install -r requirements.txt
+
+# GorillaVision Requirements -----------------
+torchvision==0.14.1
+numpy
+opencv-python==4.5.5.64
+pandas==1.2.5
+pytorch_lightning
+scikit-learn
+torchmetrics
+kornia
+seaborn>=0.11.0
+tensorflow
+
+# Base ----------------------------------------
+matplotlib>=3.2.2
+numpy>=1.18.5
+Pillow>=7.1.2
+PyYAML>=5.3.1
+requests>=2.23.0
+scipy>=1.4.1
+torch>=1.7.0,!=1.12.0
+tqdm>=4.41.0
+protobuf<4.21.3
+
+# Logging -------------------------------------
+tensorboard>=2.4.1
+wandb
+
+# Extras --------------------------------------
+ipython  # interactive notebook
+psutil  # system utilization
+thop  # FLOPs computation

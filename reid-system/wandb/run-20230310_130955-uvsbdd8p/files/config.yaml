@@ -1,0 +1,232 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.13.11
+    framework: lightning
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    m:
+    - 1: trainer/global_step
+      6:
+      - 3
+    - 1: val_loss
+      5: 1
+      6:
+      - 1
+    - 1: avg_val_loss_epoch
+      5: 1
+      6:
+      - 1
+    - 1: train_loss
+      5: 1
+      6:
+      - 1
+    - 1: epoch
+      5: 1
+      6:
+      - 1
+    - 1: database_set_embeddings._type
+      5: 1
+      6:
+      - 1
+    - 1: database_set_embeddings.sha256
+      5: 1
+      6:
+      - 1
+    - 1: database_set_embeddings.size
+      5: 1
+      6:
+      - 1
+    - 1: database_set_embeddings.artifact_path
+      5: 1
+      6:
+      - 1
+    - 1: database_set_embeddings._latest_artifact_path
+      5: 1
+      6:
+      - 1
+    - 1: database_set_embeddings.path
+      5: 1
+      6:
+      - 1
+    - 1: database_set_embeddings.ncols
+      5: 1
+      6:
+      - 1
+    - 1: database_set_embeddings.nrows
+      5: 1
+      6:
+      - 1
+    - 1: val_embeddings._type
+      5: 1
+      6:
+      - 1
+    - 1: val_embeddings.sha256
+      5: 1
+      6:
+      - 1
+    - 1: val_embeddings.size
+      5: 1
+      6:
+      - 1
+    - 1: val_embeddings.artifact_path
+      5: 1
+      6:
+      - 1
+    - 1: val_embeddings._latest_artifact_path
+      5: 1
+      6:
+      - 1
+    - 1: val_embeddings.path
+      5: 1
+      6:
+      - 1
+    - 1: val_embeddings.ncols
+      5: 1
+      6:
+      - 1
+    - 1: val_embeddings.nrows
+      5: 1
+      6:
+      - 1
+    python_version: 3.8.12
+    start_time: 1678453795.553255
+    t:
+      1:
+      - 1
+      - 5
+      - 9
+      - 41
+      - 53
+      - 55
+      - 79
+      2:
+      - 1
+      - 5
+      - 9
+      - 41
+      - 53
+      - 55
+      - 79
+      3:
+      - 1
+      - 7
+      - 16
+      - 23
+      4: 3.8.12
+      5: 0.13.11
+      8:
+      - 5
+augment_config:
+  desc: null
+  value:
+    use_erase: false
+    use_geometric: true
+    use_intensity: true
+augment_config/use_erase:
+  desc: null
+  value: false
+augment_config/use_geometric:
+  desc: null
+  value: true
+augment_config/use_intensity:
+  desc: null
+  value: true
+augmentation:
+  desc: null
+  value: true
+backbone:
+  desc: null
+  value: vit
+batch_size:
+  desc: null
+  value: 128
+class_sampler_config:
+  desc: null
+  value:
+    classes_per_batch: 20
+    samples_per_class: 8
+class_sampler_config/classes_per_batch:
+  desc: null
+  value: 20
+class_sampler_config/samples_per_class:
+  desc: null
+  value: 8
+cutoff_classes:
+  desc: null
+  value: true
+dataset_statistics:
+  desc: null
+  value:
+    amount_of_eval_classes: 115
+    amount_of_test_classes: 115
+    amount_of_train_classes: 86
+    average_amount_of_images_test: 2.2413793103448274
+    average_amount_of_images_train: 7.430232558139535
+    name: cxl_face-openset=True_0
+    type: cxl
+df:
+  desc: null
+  value: '                                                images labels labels_numeric
+
+    0    [[[197, 174, 180], [193, 170, 176], [170, 144,...   PL04              0
+
+    1    [[[132, 148, 107], [156, 172, 131], [144, 166,...   PL04              0
+
+    2    [[[96, 72, 74], [103, 79, 81], [111, 87, 89], ...   PL04              0
+
+    3    [[[100, 91, 109], [99, 90, 108], [95, 88, 107]...   PL04              0
+
+    4    [[[107, 83, 85], [111, 89, 93], [123, 101, 105...   PL04              0
+
+    ..                                                 ...    ...            ...
+
+    634  [[[93, 79, 77], [91, 77, 75], [91, 77, 75], [9...     b0             85
+
+    635  [[[98, 103, 96], [97, 102, 95], [95, 100, 93],...     b0             85
+
+    636  [[[93, 98, 96], [95, 100, 100], [93, 98, 98], ...     b0             85
+
+    637  [[[115, 142, 117], [91, 118, 93], [158, 182, 1...     b0             85
+
+    638  [[[94, 94, 92], [91, 91, 89], [91, 92, 87], [9...     b0             85
+
+
+    [632 rows x 3 columns]'
+embedding_size:
+  desc: null
+  value: 256
+experiment:
+  desc: null
+  value: conf mat cxl
+img_preprocess:
+  desc: null
+  value: crop
+img_size:
+  desc: null
+  value:
+  - 224
+  - 224
+l2_factor:
+  desc: null
+  value: null
+learning_rate:
+  desc: null
+  value: 1.0e-05
+lr:
+  desc: null
+  value: 1.0e-05
+max_epochs:
+  desc: null
+  value: 5
+sampler:
+  desc: null
+  value: ensure_positive
+train_val_split_overlapping:
+  desc: null
+  value: true
+use_augmentation:
+  desc: null
+  value: true
