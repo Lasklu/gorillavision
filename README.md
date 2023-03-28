@@ -54,17 +54,17 @@ We provide some preprocessed data and models on the server. These can also be us
 To create futher k-folds dataset splits you can use the `dataset_generator.py`
 
 - Data to train and evaluate the detection model
--- TODO
+  - TODO
 
 - Data to train and evaluate the prediction model: `/scratch1/wildlife_conservation/data/gorilla_experiment_splits/k-fold-splits`
--- Open-Set: All folders ending with openset=True
--- Closed-Set: All folders ending with openset=False
+  - Open-Set: All folders ending with openset=True
+  - Closed-Set: All folders ending with openset=False
 
 - Pretrained models and database for demo purposes
--- Face detection model: `/scratch1/wildlife_conservation/demo/models/yolov7_face_model.pt`
--- Body detection model: `/scratch1/wildlife_conservation/demo/models/yolov7_body_model.pt`
--- re-id model (trained on all individuals): `/scratch1/wildlife_conservation/demo/models/identification_model.ckpt`
--- database (all individuals): `/scratch1/wildlife_conservation/demo/models/db`
+  - Face detection model: `/scratch1/wildlife_conservation/demo/models/yolov7_face_model.pt`
+  - Body detection model: `/scratch1/wildlife_conservation/demo/models/yolov7_body_model.pt`
+  - re-id model (trained on all individuals): `/scratch1/wildlife_conservation/demo/models/identification_model.ckpt`
+  - database (all individuals): `/scratch1/wildlife_conservation/demo/models/db`
 
 
 <a name="contributors"></a>
