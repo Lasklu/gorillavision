@@ -84,9 +84,7 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
         def get_loss(model_name):
             return float(model_name.split("=")[-1][:-5])
         def get_name(model_name):
-            print(model_name)
             name = model_name.split("_")[1]
-            print(name)
             return name
         if get_name(model_name) != str(wandb.run.name):
             continue
@@ -97,11 +95,11 @@ def train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epoc
     return os.path.join(model_save_path, best_model)
 
 if __name__ == '__main__':
-    print("Loading config...")
+    logger.info("Loading config...")
     argparser = argparse.ArgumentParser(description='Train and validate a model on any dataset')
     argparser.add_argument('-c','--conf', help='name of the configuration file in config folder', default='config.json')
     conf_name = argparser.parse_args().conf
-    config_path = os.path.join("./configs", conf_name)
+    config_path = os.path.join("./gorillavision/configs", conf_name)
     with open(config_path) as config_buffer:    
         config = json.loads(config_buffer.read())
     
@@ -115,14 +113,15 @@ if __name__ == '__main__':
     sampler = config["train"]["sampler"]
     use_augmentation = config["train"]["use_augmentation"]
     augment_config = config["train"]["augment_config"]
-    model_save_path = config["model"]["model_save_path"]
+    model_save_path = config["train"]["model_save_path"]
     train_val_split_overlapping = config["train"]["train_val_split_overlapping"]
     class_sampler_config = config["train"]["class_sampler_config"]
     cutoff_classes = config["model"]["cutoff_classes"]
     l2_factor = config["train"]["l2_factor"]
     img_preprocess = config["model"]["img_preprocess"]
     backbone = config["model"]["backbone"]
-    train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation, augment_config,
+    model_path = train(df, lr, batch_size, input_width, input_height, embedding_size, nb_epochs, sampler, use_augmentation, augment_config,
           model_save_path, train_val_split_overlapping, class_sampler_config, cutoff_classes, l2_factor, img_preprocess, None, backbone)
+    logger.info(f"Saving model under {model_path}")
 
     

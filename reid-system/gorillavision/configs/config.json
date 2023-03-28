@@ -7,16 +7,17 @@
     "model": {
         "input_width": 224,
         "input_height": 224,
-        "embedding_size": 256,
-        "model_save_path": "/models",
-        "cutoff_classes": true,
         "img_preprocess": "crop",
+        "embedding_size": 256,
+        "cutoff_classes": true,
         "backbone": "vit"
     },
     "train": {
         "dataset": {
-            "path": "/data/train_test_non_distinct/cxl_all_0_75/"
+            "path": "/data/data/gorilla_experiment_splits/k-fold-splits/cxl_face-openset=True_0/train"
         },
+        "model_save_path": "/models",
+        "train_val_split_overlapping": true,
         "batch_size": 128,
         "learning_rate": 1e-5,
         "nb_epochs": 5,
@@ -26,7 +27,6 @@
             "classes_per_batch": 20
         },
         "use_augmentation": true,
-        "train_val_split_overlapping": true,
         "augment_config": {
             "use_erase": false,
             "use_intensity": true,
@@ -34,15 +34,14 @@
         },
         "l2_factor": null
     },
-    "predict": {
-        "db_path": "/data/db/",
-        "model_path": "/models/cxl_all_0_75_final5",
-        "img_folder": "/data/experiments/exp3/cxl_all_0_75_final5/eval",
-        "n_neighbors": 5
-    },
     "create_db": {
-        "image_folder": "/data/experiments/exp3/cxl_all_0_75_final5/database_set",
-        "db_path": "/data/db/",
-        "model_path": "/models/cxl_all_0_75_final5"
+        "image_folder": "/data/data/gorilla_experiment_splits/k-fold-splits/cxl_face-openset=True_0/database_set",
+        "db_path": "/data/data/gorilla_experiment_splits/db/",
+        "model_path": "/models/Model_None_epoch=4-loss-val_loss=0.15862980484962463378906250000000000000000000000000.ckpt"
+    },
+    "eval": {
+        "db_path": "/data/data/gorilla_experiment_splits/db/",
+        "model_path": "/models/Model_None_epoch=4-loss-val_loss=0.15862980484962463378906250000000000000000000000000.ckpt",
+        "img_folder": "/data/data/gorilla_experiment_splits/k-fold-splits/cxl_face-openset=True_0/eval"
     }
 }

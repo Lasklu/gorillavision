@@ -23,6 +23,8 @@ This includes a trained and serialized model for face and body detection, a trai
 
 ```docker run -v  /scratch1/wildlife_conservation/:/data -v /gorilla-reidentification/:/gorilla-reidentification --gpus device=0 --ipc="host" -it gorilla_triplet predict.py```
 
+For demo purposes `scratch1/scratch1/wildlife_conservation/demo` can be mounted to include pretrained models (see description of models in the data section).
+
 ### Evaluation Pipeline
 If you want to train a model based on your own data and directly evaluate it, we reccomend using the evaluation pipeline.
 This requires 3 datasets: Training data, data to create a database from, and data that is used to evaluate and compute the metrics on.
@@ -43,6 +45,25 @@ Run the "train_detection.py" with the according dataset in the docker container 
 
 #### Identification
 You can also run training and database creation individually. To do so start the docker container, provide the required arguments in the according sections (train, predict and create_db) in the config file and run "train_identification.py" or "create_identification_db.py" in the docker container.
+
+To train the identification model, the images should be provided cropped to the gorilla and all images belonging to an individual should be stored in an according folder.
+
+## Data
+We provide some preprocessed data and models on the server. These can also be used to reproduce our results. The dataset splits are created using a custom stratified sampling with a split of 70% for training, and 30% for creating the database and evaluating against.
+
+- Data to train and evaluate the detection model
+-- TODO
+
+- Data to train and evaluate the prediction model: `/scratch1/wildlife_conservation/data/gorilla_experiment_splits/k-fold-splits`
+-- Open-Set: All folders ending with openset=True
+-- Closed-Set: All folders ending with openset=False
+
+- Pretrained models and database for demo purposes
+-- Face detection model: `/scratch1/wildlife_conservation/demo/models/yolov7_face_model.pt`
+-- Body detection model: `/scratch1/wildlife_conservation/demo/models/yolov7_body_model.pt`
+-- re-id model (trained on all individuals): `/scratch1/wildlife_conservation/demo/models/identification_model.ckpt`
+-- database (all individuals): `/scratch1/wildlife_conservation/demo/models/db`
+
 
 <a name="contributors"></a>
 ### Contributors ✨

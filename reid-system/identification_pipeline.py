@@ -3,6 +3,7 @@ import argparse
 import os
 import sys
 import numpy as np
+import wandb
 
 from train_identification import train
 from eval_identification import score
@@ -37,7 +38,7 @@ def main(dataset_paths, config):
                     sampler=config["train"]["sampler"],
                     use_augmentation=config["train"]["use_augmentation"],
                     augment_config=config["train"]["augment_config"],
-                    model_save_path=f'{config["model"]["model_save_path"]}/{dataset_path.split("/")[-1]}',
+                    model_save_path=f'{config["train"]["model_save_path"]}/{dataset_path.split("/")[-1]}',
                     train_val_split_overlapping=config["train"]["train_val_split_overlapping"],
                     class_sampler_config = config["train"]["class_sampler_config"],
                     cutoff_classes = config["model"]["cutoff_classes"],
@@ -49,26 +50,31 @@ def main(dataset_paths, config):
             )
             model = TripletLoss.load_from_checkpoint(model_path)
             logger.info(f"Model trained. Stored in: {model_path}. Creating database...")
-            labels, embeddings, images = create_db(
+            labels, embeddings, embeddings_data = create_db(
                     image_folder=os.path.join(dataset_path, "database_set"),
                     model=model,
-                    type="database_set",
                     input_width=config['model']['input_width'],
                     input_height=config['model']['input_height'],
-                    img_preprocess=config['model']["img_preprocess"]  
+                    img_preprocess=config['model']["img_preprocess"],
+                    return_embedding_images=True
             )
+            wandb.log({f"database_set_embeddings": embeddings_data})
             logger.info(f"Database created of shape {np.shape(embeddings)}. Scoring model...")
-            results = score(
+            metrics, val_emb_df, conf_mat_plot_data = score(
                     model=model,
                     image_folder=os.path.join(dataset_path, "eval"),
                     labels=labels,
                     embeddings=embeddings,
-                    images=images,
                     input_width=config['model']['input_width'],
                     input_height=config['model']['input_height'],
                     img_preprocess=config['model']["img_preprocess"]
             )
-            logger.info(f"Model scored. Results: {results}")
+
+            wandb.log({"val_embeddings": val_emb_df})
+            wandb.log({"conf_mat" :  wandb.plot.confusion_matrix(probs=None, y_true=conf_mat_plot_data["y_true"], preds=conf_mat_plot_data["preds"])})
+            for metric, value in metrics.items():
+                wandb.summary[metric] = value
+            wandb.finish()
     except Exception as Argument:
         logger.exception("Sorry, but an error occured. Seems like the gorillas do not want to be identified: Fix your code;)")
 
@@ -77,7 +83,6 @@ def get_dataset_paths(config):
         return config["main"]["datasets"]
     elif "datasets_folder" in config["main"] and config["main"]["datasets_folder"] != None:
         base_path = config["main"]["datasets_folder"]
-        print(config["main"]["datasets_folder"])
         return [os.path.join(base_path, dataset) for dataset in os.listdir(base_path)]
     else:
         raise Exception("No dataset specified in config")

@@ -21,7 +21,7 @@ import json
 from gorillavision.utils.image import transform_image
 from gorillavision.utils.logger import logger
 
-def score(model, image_folder, labels, embeddings, images, input_width, input_height, img_preprocess):
+def score(model, image_folder, labels, embeddings, input_width, input_height, img_preprocess):
     # setup knn classifier based in labels and embeddings from "db", k=5 default
     knn_classifier = neighbors.KNeighborsClassifier()
     knn_classifier.fit(embeddings, labels)
@@ -56,8 +56,7 @@ def score(model, image_folder, labels, embeddings, images, input_width, input_he
     # Log and calculate metrics
     classes_eval = list(set(test_labels))
     logger.info(f"Classes for eval: {classes_eval}")
-    df = pd.DataFrame(columns=[*["target", "predicted", "img"], *dimensions], data=all_data)
-    wandb.log({"val_embeddings": df})
+    val_emb_df = pd.DataFrame(columns=[*["target", "predicted", "img"], *dimensions], data=all_data)
     joined_labels = test_labels + [p[0] for p in predicted_labels]
     joined_labels += labels.tolist()
     all_unique_labels = list(set(joined_labels))
@@ -65,26 +64,27 @@ def score(model, image_folder, labels, embeddings, images, input_width, input_he
     num_images_correct = sum([1 for idx in range(0, len(test_labels)) if test_labels[idx] == predicted_labels[idx]])
     logger.info(f"correctly classified {num_images_correct}/{len(test_labels)} images")
     metrics = compute_prediction_metrics(test_labels, predicted_labels, predicted_scores, all_unique_labels)
-    wandb.log({"conf_mat" : wandb.plot.confusion_matrix(probs=None, y_true=test_labels, preds=[p[0] for p in predicted_labels])})
+    conf_mat_plot_data = {"y_true": test_labels, "preds": [p[0] for p in predicted_labels]}
 
     logger.info(f"Run metrics: {metrics}")
-    for metric, value in metrics.items():
-        wandb.summary[metric] = value
-    wandb.finish()
 
-    return metrics
+    return metrics, val_emb_df, conf_mat_plot_data
 
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser()
-    argparser.add_argument('-c','--conf', help='name of the configuration file in config folder', default='config.json')
+    argparser.add_argument("-c","--conf", help="name of the configuration file in config folder", default="config.json")
     args = argparser.parse_args()
     conf_name = args.conf
     config_path = os.path.join("./gorillavision/configs", conf_name)
     with open(config_path) as config_buffer:    
         config = json.loads(config_buffer.read())
-    model_path = config['predict']['model_path']
-    image_folders = config["predict"]["img_folder"]
-    labels = np.load(os.path.join(config["predict"]["db_path"],'labels.npy'))
-    embeddings = np.load(os.path.join(config["predict"]["db_path"],'embeddings.npy'))
-    predict(model_path, image_folders, labels, embeddings)
+    model_path = config["eval"]["model_path"]
+    model = TripletLoss.load_from_checkpoint(config["create_db"]["model_path"])
+    image_folders = config["eval"]["img_folder"]
+    labels = np.load(os.path.join(config["eval"]["db_path"],"labels.npy"))
+    embeddings = np.load(os.path.join(config["eval"]["db_path"],"embeddings.npy"))
+    input_width = config['model']['input_width']
+    input_height = config['model']['input_height']
+    img_preprocess = config["model"]["img_preprocess"]
+    score(model, image_folders, labels, embeddings, input_width, input_height, img_preprocess)

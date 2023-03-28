@@ -100,6 +100,7 @@ class GorillaVision:
         self.video_cap = cv2.VideoCapture(video_path)
         frame_results_body = self.tracker_body.track_video(video_path, output=None, show_live = False, skip_frames = 0, count_objects = True, verbose=1)
         frame_results_face = self.tracker_face.track_video(video_path, output=None, show_live = False, skip_frames = 0, count_objects = True, verbose=1)
+        # TODO Important!! revisit trackbuilding: If looking at the output of the tracker and then looking at the output of the final result, there are tracks missing!
         body_tracks = make_tracks(frame_results_body)
         face_tracks = make_tracks(frame_results_face)
 

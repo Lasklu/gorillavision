@@ -11,11 +11,10 @@ import numpy as np
 from gorillavision.utils.image import transform_image
 import wandb
 
-def create_db(image_folder, model,type, input_width, input_height, img_preprocess):
+def create_db(image_folder, model, input_width, input_height, img_preprocess, return_embedding_images=False):
     labels = []
     embeddings = []
     dimensions=[]
-    images = []
     
     all_data=[]
     for folder in os.listdir(image_folder):
@@ -31,25 +30,26 @@ def create_db(image_folder, model,type, input_width, input_height, img_preproces
                 labels.append(folder)
                 embedding = model(img).numpy()[0]
                 embeddings.append(embedding)
-                all_data.append([folder, wandb.Image(img), *embedding])
+                if return_embedding_images:
+                    all_data.append([folder, wandb.Image(img), *embedding])
     for idx, _ in enumerate(embeddings[0]):
         dimensions.append(f"dim_{idx}")            
     embeddings_data = pd.DataFrame(data=all_data, columns=["target", "image", *dimensions])
-    wandb.log({f"{type}_embeddings": embeddings_data})
     
-    return np.array(labels), np.array(embeddings), np.array(images)
+    return np.array(labels), np.array(embeddings), embeddings_data
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-c','--conf', help='name of the configuration file in config folder', default='config.json')
     args = argparser.parse_args()
-    config_path = os.path.join("./configs", args.conf)
+    config_path = os.path.join("./gorillavision/configs", args.conf)
     with open(config_path) as config_buffer:
         config = json.loads(config_buffer.read())
     image_folder = config["create_db"]["image_folder"]
-    model=TripletLoss.load_from_checkpoint(config["create_db"]["model_path"])
-    input_width= config['model']['input_width']
-    input_height=config['model']['input_height']
-    labels, embeddings = create_db(image_folder,model,input_width,input_height)
+    model = TripletLoss.load_from_checkpoint(config["create_db"]["model_path"])
+    input_width = config['model']['input_width']
+    input_height = config['model']['input_height']
+    img_preprocess = config["model"]["img_preprocess"]
+    labels, embeddings, _ = create_db(image_folder, model, input_width, input_height, img_preprocess)
     np.save(os.path.join(config["create_db"]["db_path"], "labels.npy"), np.array(labels))
     np.save(os.path.join(config["create_db"]["db_path"], "embeddings.npy"), np.array(embeddings))
