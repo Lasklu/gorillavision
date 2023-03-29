@@ -15,15 +15,16 @@ The code for the gorillavision module is located in the reid-system/gorillavisio
 ## Running the Application
 
 ### Prediction
+The prediction script is able to directly predict bounding boxes on images and videos if provided with a trained detection and identification model.
 
 1. Build the docker image with `docker build -t gorilla_triplet .`
 2. Provide all required arguments in the `predict.py` file in the main function. 
-This includes a trained and serialized model for face and body detection, a trained and serialized model for the identfication, the images and videos that you want to predict on, and a database for identification.
-3. Run the docker container and prediction with 
+This includes a trained and serialized model for face and body detection, a trained and serialized model for identfication, the images and videos that you want to predict on, and a database to identify against.
+3. Adapt the paths in the command below and run the docker container and prediction with 
 
 ```docker run -v  /scratch1/wildlife_conservation/:/data -v /gorilla-reidentification/:/gorilla-reidentification --gpus device=0 --ipc="host" -it gorilla_triplet predict.py```
 
-For demo purposes `scratch1/scratch1/wildlife_conservation/demo` can be mounted to include pretrained models (see description of models in the data section).
+For demo purposes `scratch1/scratch1/wildlife_conservation/` can be mounted on the server to include pretrained models (see description of models in the data section) that work without any adaption of the parameters in the `main` function.
 
 ### Evaluation Pipeline
 If you want to train a model based on your own data and directly evaluate it, we reccomend using the evaluation pipeline.
