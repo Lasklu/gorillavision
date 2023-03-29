@@ -41,10 +41,10 @@ docker run -v  /home/mydatafolder/:/data -v /home/models/:/models -v /gorilla-re
 If you want to evaluate multiple configs in one go, you can use `-d |directory_name|` as a paramter for the `identification_pipeline` that provides the name of a directory that contains all configs.
 
 ### Training
-#### Detection
-Run the "train_detection.py" with the according dataset in the docker container to create a detection model.
+**Detection**
+Run the "train_detection.py" with the according dataset in the docker container to create a detection model. You can run the detection with the following command: TODO
 
-#### Identification
+**Identification**
 You can also run training and database creation individually. To do so start the docker container, provide the required arguments in the according sections (train, predict and create_db) in the config file and run "train_identification.py" or "create_identification_db.py" in the docker container.
 
 To train the identification model, the images should be provided cropped to the gorilla and all images belonging to an individual should be stored in an according folder.
@@ -55,7 +55,7 @@ We provide some preprocessed data and models on the server. These can also be us
 To create futher k-folds dataset splits you can use the `dataset_generator.py`
 
 - Data to train and evaluate the detection model
-  - TODO
+  - Images and labels for training YOLO are loacted under `/scratch1/wildlife_conservation/data/bristol_data`
 
 - Data to train and evaluate the prediction model: `/scratch1/wildlife_conservation/data/gorilla_experiment_splits/k-fold-splits`
   - Open-Set: All folders ending with openset=True
