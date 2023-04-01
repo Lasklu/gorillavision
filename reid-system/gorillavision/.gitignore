@@ -1,0 +1,5 @@
+.venv/*
+data/*
+database/*
+wandb/*
+.env

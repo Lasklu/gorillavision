@@ -1,0 +1,47 @@
+{
+    "main": {
+        "experiment": "conf mat cxl",
+        "datasets": ["/data/data/gorilla_experiment_splits/k-fold-splits/cxl_face-openset=True_0"],
+        "datasets_folder": null
+    },
+    "model": {
+        "input_width": 224,
+        "input_height": 224,
+        "img_preprocess": "crop",
+        "embedding_size": 256,
+        "cutoff_classes": true,
+        "backbone": "vit"
+    },
+    "train": {
+        "dataset": {
+            "path": "/data/data/gorilla_experiment_splits/k-fold-splits/cxl_face-openset=True_0/train"
+        },
+        "model_save_path": "/models",
+        "train_val_split_overlapping": true,
+        "batch_size": 128,
+        "learning_rate": 1e-5,
+        "nb_epochs": 5,
+        "sampler": "ensure_positive",
+        "class_sampler_config": {
+            "samples_per_class": 8,
+            "classes_per_batch": 20
+        },
+        "use_augmentation": true,
+        "augment_config": {
+            "use_erase": false,
+            "use_intensity": true,
+            "use_geometric": true
+        },
+        "l2_factor": null
+    },
+    "create_db": {
+        "image_folder": "/data/data/gorilla_experiment_splits/k-fold-splits/cxl_face-openset=True_0/database_set",
+        "db_path": "/data/data/gorilla_experiment_splits/db/",
+        "model_path": "/models/Model_None_epoch=4-loss-val_loss=0.15862980484962463378906250000000000000000000000000.ckpt"
+    },
+    "eval": {
+        "db_path": "/data/data/gorilla_experiment_splits/db/",
+        "model_path": "/models/Model_None_epoch=4-loss-val_loss=0.15862980484962463378906250000000000000000000000000.ckpt",
+        "img_folder": "/data/data/gorilla_experiment_splits/k-fold-splits/cxl_face-openset=True_0/eval"
+    }
+}
