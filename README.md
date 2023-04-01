@@ -78,5 +78,6 @@ To create futher k-folds dataset splits you can use the `dataset_generator.py`
   </tr>
 </table>
 
+The tracking module is based on the following work: https://github.com/deshwalmahesh/yolov7-deepsort-tracking
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
