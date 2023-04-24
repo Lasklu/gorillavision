@@ -30,9 +30,9 @@ def load_data(dataset_path):
     individuals_df = individuals_df[~individuals_df["labels"].isin(individuals_to_remove)]
     return individuals_df
 
-def train_val_split_distinct(df, test_size=0.3, random_state=0, label_col_name="labels_numeric"):
+def train_val_split_distinct(df, test_size=0.3, random_state=0, label_col_name="labels_numeric", seed=123):
     # split into train and val set without overlapping individiuals
-    np.random.seed(random_state)
+    np.random.seed(seed)
     individuals = df[label_col_name].unique().tolist()
     num_individuals = len(individuals)
     num_individuals_val = math.floor(test_size * num_individuals)

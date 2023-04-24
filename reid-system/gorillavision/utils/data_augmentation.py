@@ -12,17 +12,17 @@ class DataAugmentation(nn.Module):
 
         self.geometric_transforms = nn.Sequential(
             # RandomRotation(degrees=360, p=0.3),
-            RandomHorizontalFlip(p=0.3),
-            RandomPerspective(p=0.3)
+            RandomHorizontalFlip(p=0.1),
+            RandomPerspective(p=0.1)
         )
 
         self.intensity_transforms = nn.Sequential(
-            RandomPlanckianJitter(p=0.3),
-            RandomBrightness(p=0.3),
+            RandomPlanckianJitter(p=0.1),
+            RandomBrightness(p=0.1),
         )
 
         self.erase_transforms = nn.Sequential(
-            RandomErasing(scale=(0.02, 0.2), ratio=(0.3, 3), p=0.3)
+            RandomErasing(scale=(0.02, 0.2), ratio=(0.3, 3), p=0.1)
         )
 
     @torch.no_grad()

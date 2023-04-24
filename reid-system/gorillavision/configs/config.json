@@ -1,7 +1,7 @@
 {
     "main": {
-        "experiment": "conf mat cxl",
-        "datasets": ["/data/data/gorilla_experiment_splits/k-fold-splits/cxl_face-openset=True_0"],
+        "experiment": "whale data",
+        "datasets": ["/data/data/whale_data/data"],
         "datasets_folder": null
     },
     "model": {
@@ -20,15 +20,15 @@
         "train_val_split_overlapping": true,
         "batch_size": 128,
         "learning_rate": 1e-5,
-        "nb_epochs": 5,
-        "sampler": "ensure_positive",
+        "nb_epochs": 300,
+        "sampler": "class_sampler",
         "class_sampler_config": {
-            "samples_per_class": 8,
+            "samples_per_class": 5,
             "classes_per_batch": 20
         },
         "use_augmentation": true,
         "augment_config": {
-            "use_erase": false,
+            "use_erase": true,
             "use_intensity": true,
             "use_geometric": true
         },
