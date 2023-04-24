@@ -55,7 +55,7 @@ We provide some preprocessed data and models on the server. These can also be us
 To create futher k-folds dataset splits you can use the `dataset_generator.py`
 
 - Data to train and evaluate the detection model
-  - Images and labels for training YOLO are loacted under `/scratch1/wildlife_conservation/data/bristol_data`
+  - Images and labels for training YOLO are loacted under `/scratch1/wildlife_conservation/data/face_detection/data`
 
 - Data to train and evaluate the prediction model: `/scratch1/wildlife_conservation/data/gorilla_experiment_splits/k-fold-splits`
   - Open-Set: All folders ending with openset=True
