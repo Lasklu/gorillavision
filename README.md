@@ -11,6 +11,10 @@
 
 We present a system for open-set gorilla re-identification in the wild. Our system follows a two stage approach in which gorilla faces are detected with a YOLOv7 detector in the first stage, and are classified with our GorillaVision model in the second stage. We implement our classification model based on the VisionTransformer that is optimized with Triplet Loss and that computes embeddings of gorilla faces. As in many face-identification tasks, the embeddings are then used, to provide a similarity measure between the individual gorillas. Classification is then performed on these embeddings with a k-nearest neighbors algorithm. For a closed-set scenario, our approach slightly outperforms the state-of-the art YOLO detector. In the open-set scenario, our model is also able to deliver high quality results with an accuracy in the range of 60 to 80\% depending on the quality of the dataset. Given that we have many individuals with at least 6 images each, our approach achieves 89\% top-5 accuracy.
 
+<p align="center">
+  <img alt="logo" src="gorillavisionarchitecture.png" />
+</p>
+
 <a name="structure"></a>
 ## Structure
 The code for the gorillavision module is located in the reid-system/gorillavision folder. The files to run the gorillavision module or to run predictions are located in the reid-system folder. All other folder are from the <a href="https://github.com/deshwalmahesh/yolov7-deepsort-tracking">Yolov7-Deepsort Tracking</a> project. Changes to this code structure are difficult, since changing the imports of the yolov7-deepsort tracker lead to problems when importing pre-trained models.
