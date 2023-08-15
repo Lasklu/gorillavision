@@ -2,6 +2,10 @@
 
 <h2 align="center" style=font-size:200px>An open-set re-identification system for gorillas in the wild</h2>
 
+<p align="center">
+  <img alt="logo" src="gorillavision.png" />
+</p>
+
 <a name="overview"></a>
 ## Overview
 
